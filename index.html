@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1D9E75">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Toy Tracker">
+<title>Toy Collection Tracker</title>
+<style>
+:root{
+  --bg:#FAF9F7;--bg-card:#FFFFFF;--bg-secondary:#F1EFEA;
+  --border:#E4E0D8;--border-light:#EDEAE3;
+  --text-primary:#2A2620;--text-secondary:#73695A;--text-tertiary:#A89D8A;
+  --accent:#1D9E75;--accent-dark:#0F6E56;
+  --amber:#854F0B;--amber-bg:#FAEEDA;
+  --green-bg:#E1F5EE;--red:#A32D2D;
+  --radius-md:10px;--radius-lg:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text-primary);padding-bottom:env(safe-area-inset-bottom)}
+.app{max-width:680px;margin:0 auto;padding:1rem 1rem 3rem}
+.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.25rem;gap:10px;padding-top:6px}
+.header h1{font-size:19px;font-weight:600;letter-spacing:-0.01em}
+.header p{font-size:12.5px;color:var(--text-secondary);margin-top:3px}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:1.25rem;padding-bottom:10px;border-bottom:1px solid var(--border-light);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:7px 14px;border-radius:20px;border:1px solid var(--border);font-size:13px;background:var(--bg-card);cursor:pointer;color:var(--text-secondary);white-space:nowrap}
+.tab.active{background:var(--text-primary);color:#fff;border-color:var(--text-primary);font-weight:600}
+.stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:1.25rem}
+@media(min-width:480px){.stats-row{grid-template-columns:repeat(4,1fr)}}
+.stat{background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:10px 12px}
+.stat-label{font-size:11px;color:var(--text-secondary);margin-bottom:3px}
+.stat-value{font-size:19px;font-weight:700;letter-spacing:-0.02em}
+.stat-sub{font-size:11px;color:var(--text-tertiary);margin-top:1px}
+.progress-bar{height:6px;background:var(--bg-secondary);border-radius:3px;margin-bottom:1.25rem;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .4s}
+.btn{padding:8px 14px;border-radius:var(--radius-md);border:1px solid var(--border);font-size:13px;background:var(--bg-card);cursor:pointer;color:var(--text-primary);font-weight:500}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent-dark)}
+.btn-sm{padding:5px 9px;font-size:12px}
+.btn-danger-confirm{background:var(--red);color:#fff;border-color:#7a1f1f;padding:5px 10px;font-size:12px}
+.btn-cancel-sm{padding:5px 10px;font-size:12px;color:var(--text-secondary)}
+.add-btn-row{margin-bottom:1rem}
+.add-btn-row .btn{width:100%}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px;font-weight:600;font-size:11px;color:var(--text-secondary);border-bottom:1px solid var(--border-light);white-space:nowrap;text-transform:uppercase;letter-spacing:.02em}
+td{padding:9px 8px;border-bottom:1px solid var(--border-light);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-green{background:var(--green-bg);color:var(--accent-dark)}
+.badge-amber{background:var(--amber-bg);color:var(--amber)}
+.badge-gray{background:var(--bg-secondary);color:var(--text-secondary)}
+.modal-bg{position:fixed;inset:0;background:rgba(20,18,14,0.4);display:flex;align-items:flex-end;justify-content:center;z-index:100}
+.modal{background:var(--bg-card);border-radius:18px 18px 0 0;padding:1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));width:100%;max-width:680px;max-height:85vh;overflow-y:auto}
+@media(min-width:540px){.modal-bg{align-items:center}.modal{border-radius:18px;max-height:80vh}}
+.modal h2{font-size:16px;font-weight:700;margin-bottom:1rem}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 11px;border-radius:var(--radius-md);border:1px solid var(--border);background:var(--bg);font-size:15px;color:var(--text-primary);font-family:inherit}
+.form-group textarea{resize:vertical;min-height:56px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.empty{text-align:center;padding:2rem 1rem;color:var(--text-secondary);font-size:13px}
+.filter-row{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
+.filter-row select,.filter-row input{padding:7px 10px;border-radius:var(--radius-md);border:1px solid var(--border);background:var(--bg-card);font-size:12.5px;color:var(--text-primary);font-family:inherit}
+.filter-row input{flex:1;min-width:110px}
+.overview-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:1.25rem}
+@media(min-width:480px){.overview-grid{grid-template-columns:1fr 1fr}}
+.line-card{background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:14px 16px;cursor:pointer}
+.line-card:active{background:var(--bg-secondary)}
+.line-name{font-weight:700;font-size:14.5px;margin-bottom:7px}
+.line-progress{height:5px;background:var(--bg-secondary);border-radius:3px;margin-bottom:7px;overflow:hidden}
+.line-progress-fill{height:100%;background:var(--accent);border-radius:3px}
+.line-meta{font-size:12px;color:var(--text-secondary)}
+.missing-chip{display:inline-block;padding:4px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;font-size:12.5px;margin:3px 4px 3px 0;cursor:pointer;color:var(--text-secondary)}
+.missing-chip:active{background:var(--bg-secondary)}
+.delete-confirm{display:inline-flex;align-items:center;gap:6px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-md);padding:4px 6px}
+.delete-confirm span{font-size:12px;color:var(--text-secondary)}
+.section-title{font-size:14px;font-weight:700;margin-bottom:8px}
+.group-label{font-size:11px;color:var(--text-secondary);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.02em}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.actions-cell{display:flex;gap:4px;white-space:nowrap}
+.install-banner{background:var(--green-bg);border:1px solid #a8dcc8;border-radius:var(--radius-md);padding:12px 14px;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.install-banner p{font-size:13px;color:var(--accent-dark);line-height:1.4}
+.install-banner strong{display:block;margin-bottom:2px}
+.install-banner .btns{display:flex;gap:8px;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// ── PWA Service Worker (inline, registered via blob) ──────────────────────
+const SW_CODE = `
+const CACHE = 'toy-tracker-v1';
+const ASSETS = [self.location.href];
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(clients.claim());
+});
+self.addEventListener('fetch', e => {
+  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+});
+`;
+
+// Register SW from blob so it works from a local file
+if ('serviceWorker' in navigator) {
+  const blob = new Blob([SW_CODE], {type: 'application/javascript'});
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl, {scope: './'}).catch(() => {});
+}
+
+// ── PWA Install prompt ────────────────────────────────────────────────────
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  render(); // re-render to show install banner
+});
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  localStorage.setItem('pwa-installed', '1');
+  render();
+});
+
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+         window.navigator.standalone === true;
+}
+
+window.triggerInstall = async function() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const {outcome} = await deferredInstallPrompt.userChoice;
+  if (outcome === 'accepted') { deferredInstallPrompt = null; render(); }
+};
+window.dismissInstall = function() {
+  localStorage.setItem('pwa-dismissed', '1');
+  render();
+};
+
+function renderInstallBanner() {
+  if (isStandalone()) return '';
+  if (localStorage.getItem('pwa-installed')) return '';
+  if (localStorage.getItem('pwa-dismissed')) return '';
+  if (!deferredInstallPrompt) return '';
+  return `<div class="install-banner">
+    <p><strong>Install as an app</strong>Tap Install for a permanent home screen icon that never expires.</p>
+    <div class="btns">
+      <button class="btn btn-primary btn-sm" onclick="triggerInstall()">Install</button>
+      <button class="btn btn-sm" onclick="dismissInstall()">Later</button>
+    </div>
+  </div>`;
+}
+
+// ── Data ──────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'toy-collection-v1';
+const RELEASED = {
+  Voltron:{
+    "Lion Force (Combiners)":["Black Lion","Blue Lion","Green Lion","Red Lion","Voltron","Yellow Lion"],
+    "Basic Figures":["Doom Commander","Haggar the Witch","Hunk","Keith","King Zarkon","Lance","Pidge","Prince Lotor","Princess Allura","Robeast Mutilor","Robeast Scorpius","Skull Scavenger"],
+    "Playsets":["Castle of Lions"],
+    "Vehicles":["Coffin of Darkness","Coffin of Doom","Doom Blaster","Skull Tank","Zarkon Zapper"]
+  },
+  Gargoyles:{
+    "Series 1 (1995)":["Broadway","Bronx","Brooklyn","Demona","Goliath (Battle)","Goliath (Claw Climber)","Goliath (Mighty Roar)","Goliath (Power Wing)","Goliath (Quick Strike)","Goliath (Stone Armor)","Hudson","Lexington","Macbeth (Strike Hammer)","Steel Clan Robot","Xanatos"],
+    "Series 2 (1996)":["Broadway (Hard-Wired)","Broadway (Stone Camo)","Brooklyn (Icestorm)","Bronx (Lion)","Coldstone (Hard-Wired)","Elisa Maza","Goliath (Flamestorm)","Goliath (Griffin)","Goliath (Hard-Wired)","Goliath (Minotaur)","Hudson (Rainstorm)","Lexington (Hard-Wired)","Lexington (Stone Camo)","Xanatos (Hard-Wired)","Xanatos (Steel Clan Battle Armor)"],
+    "Vehicles & Playsets":["Castle Playset","Night Striker","Rippin' Rider Cycle","Xanatos XI-44 Roadster"]
+  },
+  Transformers:{
+    "Numbered (SS-86-01 to 32)":["Jazz (SS-86-01)","Kup (SS-86-02)","Blurr (SS-86-03)","Hot Rod (SS-86-04)","Scourge (SS-86-05)","Grimlock (SS-86-06)","Slug (SS-86-07)","Gnaw (SS-86-08)","Wreck-Gar (SS-86-09)","Sweep (SS-86-10)","Perceptor (SS-86-11)","Coronation Starscream (SS-86-12)","Junkheap (SS-86-14)","Sludge (SS-86-15)","Arcee (SS-86-16)","Ironhide (SS-86-17)","Snarl (SS-86-19)","Ultra Magnus (SS-86-21)","Brawn (SS-86-22)","Ratchet (SS-86-23)","Scrapheap (SS-86-24)","Swoop (SS-86-26)","Dying Brawn (SS-86-27)","Dying Ratchet (SS-86-28)","Bumblebee (SS-86-29)","Springer (SS-86-30)","Optimus Prime (SS-86-31)","Galvatron (SS-86-32)"],
+    "Non-Numbered (2025+)":["Bonecrusher","Scrapper","Hook & Long Haul","Scavenger","Mixmaster","Megatron","Windcharger","Thundercracker","Soundwave (4-Pack)","Kranix","Sunstreaker","Wheeljack","Shockwave","Skywarp","Astrotrain","Cliffjumper (2025)","Cyclonus","Blitzwing"],
+    "Exclusives":["Cliffjumper (BB Exclusive, SS-86-13bb)","Dying Prowl (SS-86-20bb)","Dying Ironhide (SS-86-24bb)","Blaster & Eject (SS-86-25, Target)","Perceptor & Ratbat & Ramhorn (Target)","MTMTE Scourge (Target)","MTMTE Hot Rod (Target)","MTMTE Optimus Prime (Target)","MTMTE Megatron (Target)"],
+    "Core Class":["Spike Witwicky (Core)","Ratchet (Core)","Wheelie (Core)","Rumble (Core)","Ironhide (Core)","Frenzy (Core)","Steeljaw (Core)"],
+    "Combiner":["Devastator (6-Pack)"]
+  },
+  "Toxic Crusaders":{
+    "Figures":["Bonehead","Dr. Killemoff","Headbanger","Junkyard","Major Disaster","Nozone","Psycho","Radiation Ranger","Toxie"],
+    "Vehicles":["Apocalypse Attackcopter","Crusader Skater","Hideous Hovercraft","Smogcycle","Toxic Turf Surfer"]
+  },
+  "Captain Planet":{
+    "Captain Planet Figures":["Captain Planet (All-American)","Captain Planet (Arctic)","Captain Planet (Color Change)","Captain Planet (Exploding Meteor)","Captain Planet (Flying)","Captain Planet (Light and Thunder)","Captain Planet (Pollution Armor)","Captain Planet (Power Commands)","Captain Planet (Tornado)","Captain Planet (Toxic Grime)","Captain Planet (Anti-Radiation Armor)","Captain Planet (Firestorm)","Captain Planet (Thunder & Lightning)"],
+    "Eco-Heroes":["Commander Clash","Gi Planeteer","Kwame","Linka","Linka (Eco Commands)","Linka (Parachute)","Ma-Ti","Ma-Ti (Rescue Pack)","Ma-Ti (Rescue Vehicle)","Ma-Ti (Pink Jacket) / Kwame (Green Shorts)","Ma-Ti (Red Jacket) / Kwame (Tan Shorts)","Wheeler","Wheeler (Eco Commands)","Wheeler (Grappling Hook)","Wheeler (Tread Pack)","Wheeler (Sparking Action)"],
+    "Eco-Villains":["Argos Bleak","Captain Pollution","Dr. Blight","Duke Nukem","Duke Nukem (Euro Version)","Duke Nukem (Glows in the Dark) (Euro Version)","Hoggish Greedly","Sly Sludge","Verminous Skumm"],
+    "Vehicles & Accessories":["Duke's Exploding Reactor","Eco Jailer","Eco-Cycle","Eco-Sub","Exploding Garbage Cans","Garbage Cannon Truck","Geo Cruiser","Planeteer Copter","Skumm-O-Copter","Toxic Cannon","Toxic Sludge Dump","Toxic Sludge Dump (Toxic Trap)"],
+    "Role Play":["Planeteer Power Ring (Gold)","Planeteer Power Ring (Silver)"]
+  },
+  Reboot:{
+    "Series 1":["Bob (Green Suit)","Bob (White Suit, Special Edition)","Dot","Enzo","Hack","Hexadecimal","Megabyte","Slash"],
+    "Series 2":["Captain Capacitor","Commander Dot","Glitch Bob","Matrix","Megabyte (S2)","Ray Tracer (Blue/White)","Ray Tracer (Solid Blue)","Web Bob","Web Matrix","Web Rider"],
+    "PVC":["Bob (PVC)","Dot (PVC)","Frisket","Hack (PVC)","Megabyte (PVC)","Slash (PVC)"],
+    "10\" Scale":["Andrala (10-inch)","Glitch Bob (10-inch)","Matrix (10-inch)","Megabyte (10-inch)"],
+    "Vehicles":["Bob's V262 Turbo Drophead Car","Exo-Skeleton"],
+    "Miniature Playsets":["Hack and Slash's Vehicle Bay","Hexadecimal's Lair","Megabyte's Throne Room"],
+    "Box Sets":["Original Collector Edition #1","Original Collector Edition #2"]
+  }
+};
+
+function flatReleased(l){return Object.values(RELEASED[l]||{}).flat();}
+
+const DEFAULT_DATA={
+  Voltron:[
+    {id:1,toy:"Voltron Lions + Pilots",condition:"Loose",complete:"Y",price:550,sold:0,postage:0,notes:""},
+    {id:2,toy:"Haggar the Witch",condition:"Loose",complete:"Y",price:10,sold:0,postage:0,notes:""},
+    {id:3,toy:"King Zarkon",condition:"Loose",complete:"Y",price:30,sold:0,postage:0,notes:""},
+    {id:4,toy:"Doom Commander",condition:"Loose",complete:"Y",price:25,sold:0,postage:0,notes:""},
+    {id:5,toy:"Robeast Scorpius",condition:"Loose",complete:"Y",price:20,sold:0,postage:0,notes:""},
+    {id:6,toy:"Skull Tank",condition:"Loose",complete:"Y",price:70,sold:0,postage:15,notes:""},
+    {id:7,toy:"Prince Lotor",condition:"Loose",complete:"Y",price:30,sold:0,postage:0,notes:""},
+    {id:8,toy:"Castle of Lions",condition:"Loose",complete:"Y",price:190,sold:0,postage:0,notes:""},
+    {id:9,toy:"Coffin of Darkness",condition:"Loose",complete:"Y",price:90,sold:0,postage:0,notes:""},
+    {id:10,toy:"Skull Scavenger",condition:"Loose",complete:"Y",price:35,sold:0,postage:11,notes:"Previously listed as Skull Commander"},
+    {id:11,toy:"Robeast Mutilor",condition:"Loose",complete:"Y",price:29,sold:0,postage:0,notes:"Previously listed as Robeast"},
+    {id:12,toy:"Haggar Shield",condition:"Loose",complete:"Y",price:25,sold:0,postage:0,notes:"Accessory - not an official release"}
+  ],
+  Gargoyles:[
+    {id:1,toy:"Night Striker",condition:"Boxed",complete:"Y",price:115,sold:0,postage:15,notes:""},
+    {id:2,toy:"Elisa Maza",condition:"MOC",complete:"",price:35,sold:0,postage:0,notes:""},
+    {id:3,toy:"Sticker Book",condition:"MOC",complete:"Y",price:62,sold:44,postage:44,notes:""},
+    {id:4,toy:"Hudson",condition:"Loose",complete:"N",price:25,sold:43,postage:0,notes:""},
+    {id:5,toy:"Lexington (Stone Camo)",condition:"Loose",complete:"N",price:5,sold:10,postage:0,notes:""},
+    {id:6,toy:"Brooklyn",condition:"Loose",complete:"Y",price:42,sold:0,postage:0,notes:""},
+    {id:7,toy:"Bronx",condition:"Loose",complete:"Y",price:42,sold:0,postage:0,notes:""},
+    {id:8,toy:"Goliath (Battle)",condition:"Loose",complete:"Y",price:42,sold:0,postage:0,notes:""},
+    {id:9,toy:"Goliath (Power Wing)",condition:"Loose",complete:"Y",price:42,sold:0,postage:0,notes:""},
+    {id:10,toy:"Goliath (Flamestorm)",condition:"Loose",complete:"Y",price:55,sold:0,postage:0,notes:""},
+    {id:11,toy:"Hudson (Rainstorm)",condition:"Loose",complete:"Y",price:50,sold:0,postage:0,notes:""},
+    {id:12,toy:"Demona",condition:"Loose",complete:"N",price:55,sold:0,postage:0,notes:""}
+  ],
+  Transformers:[
+    {id:1,toy:"Jazz (SS-86-01)",condition:"Loose",complete:"Y",price:43,sold:0,postage:20,notes:""},{id:2,toy:"Jazz (SS-86-01)",condition:"Loose",complete:"Y",price:43,sold:0,postage:0,notes:""},{id:3,toy:"Ironhide (SS-86-17)",condition:"Loose",complete:"Y",price:43,sold:0,postage:0,notes:""},{id:4,toy:"Steeljaw (Core)",condition:"Loose",complete:"Y",price:43,sold:0,postage:0,notes:""},{id:5,toy:"Bumblebee (SS-86-29)",condition:"Loose",complete:"Y",price:43,sold:0,postage:0,notes:""},{id:6,toy:"Blurr (SS-86-03)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:0,notes:""},{id:7,toy:"Bumblebee (SS-86-29)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:20,notes:""},{id:8,toy:"Blaster & Eject (SS-86-25, Target)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:0,notes:""},{id:9,toy:"Brawn (SS-86-22)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:0,notes:""},{id:10,toy:"Arcee (SS-86-16)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:0,notes:""},{id:11,toy:"Kup (SS-86-02)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:0,notes:""},{id:12,toy:"Jazz (SS-86-01)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:0,notes:""},{id:13,toy:"Brawn (SS-86-22)",condition:"Loose",complete:"Y",price:50,sold:0,postage:0,notes:"Brawn & Ratchet lot"},{id:14,toy:"Galvatron (SS-86-32)",condition:"Boxed",complete:"Y",price:80,sold:0,postage:0,notes:""},{id:15,toy:"Scrapper",condition:"Boxed",complete:"Y",price:48,sold:0,postage:0,notes:""},{id:16,toy:"Junkheap (SS-86-14)",condition:"Boxed",complete:"Y",price:45,sold:0,postage:0,notes:""},{id:17,toy:"Gnaw (SS-86-08)",condition:"Boxed",complete:"Y",price:45,sold:0,postage:0,notes:""},{id:18,toy:"Springer (SS-86-30)",condition:"Boxed",complete:"Y",price:72,sold:0,postage:0,notes:""},{id:19,toy:"Scrapheap (SS-86-24)",condition:"Boxed",complete:"Y",price:40,sold:0,postage:0,notes:""},{id:20,toy:"Perceptor & Ratbat & Ramhorn (Target)",condition:"Boxed",complete:"Y",price:40,sold:0,postage:0,notes:""},{id:21,toy:"Gnaw (SS-86-08)",condition:"Loose",complete:"Y",price:29,sold:0,postage:0,notes:""},{id:22,toy:"Megatron",condition:"Boxed",complete:"Y",price:89,sold:0,postage:0,notes:""},{id:23,toy:"Bonecrusher",condition:"Loose",complete:"Y",price:39,sold:0,postage:0,notes:""},{id:24,toy:"Junkheap (SS-86-14)",condition:"Loose",complete:"Y",price:25,sold:0,postage:0,notes:""},{id:25,toy:"Blurr (SS-86-03)",condition:"Loose",complete:"Y",price:17,sold:0,postage:0,notes:""},{id:26,toy:"Kup (SS-86-02)",condition:"Loose",complete:"Y",price:18,sold:0,postage:0,notes:""},{id:27,toy:"Scavenger",condition:"Boxed",complete:"Y",price:31,sold:40,postage:0,notes:""},{id:28,toy:"Blaster & Eject (SS-86-25, Target)",condition:"Loose",complete:"Y",price:35,sold:0,postage:0,notes:""},{id:29,toy:"Perceptor (SS-86-11)",condition:"Loose",complete:"Y",price:35,sold:0,postage:0,notes:""},{id:30,toy:"Coronation Starscream (SS-86-12)",condition:"Boxed",complete:"Y",price:75,sold:0,postage:0,notes:""},{id:31,toy:"Hook & Long Haul",condition:"Boxed",complete:"Y",price:153,sold:0,postage:0,notes:""},{id:32,toy:"Grimlock (SS-86-06)",condition:"Loose",complete:"Y",price:50,sold:0,postage:0,notes:"OG Grimlock"},{id:33,toy:"Mixmaster",condition:"Boxed",complete:"Y",price:60,sold:60,postage:0,notes:""},{id:34,toy:"Bonecrusher",condition:"Boxed",complete:"Y",price:40,sold:0,postage:0,notes:""},{id:35,toy:"Scavenger",condition:"Boxed",complete:"Y",price:27,sold:0,postage:0,notes:""},{id:36,toy:"Mixmaster",condition:"Boxed",complete:"Y",price:34,sold:0,postage:0,notes:""},{id:37,toy:"Scavenger",condition:"Boxed",complete:"Y",price:39,sold:0,postage:0,notes:""},{id:38,toy:"Scrapper",condition:"Boxed",complete:"Y",price:34,sold:0,postage:0,notes:""},{id:39,toy:"Scourge (SS-86-05)",condition:"Boxed",complete:"Y",price:50,sold:0,postage:0,notes:""},{id:40,toy:"Sweep (SS-86-10)",condition:"Boxed",complete:"Y",price:50,sold:0,postage:0,notes:""},{id:41,toy:"Wreck-Gar (SS-86-09)",condition:"Boxed",complete:"Y",price:50,sold:0,postage:0,notes:""},{id:42,toy:"Optimus Prime (SS-86-31)",condition:"Boxed",complete:"Y",price:180,sold:0,postage:0,notes:""},{id:43,toy:"Mixmaster",condition:"Boxed",complete:"Y",price:60,sold:0,postage:0,notes:""},{id:44,toy:"Ironhide (SS-86-17)",condition:"Boxed",complete:"Y",price:80,sold:0,postage:0,notes:"Ironhide & Prowl"},{id:45,toy:"Cliffjumper (BB Exclusive, SS-86-13bb)",condition:"Loose",complete:"Y",price:40,sold:0,postage:0,notes:""},{id:46,toy:"Ratchet (SS-86-23)",condition:"Loose",complete:"Y",price:21,sold:0,postage:11.15,notes:""}
+  ],
+  "Toxic Crusaders":[
+    {id:1,toy:"Dr. Killemoff",condition:"Loose",complete:"N",price:80,sold:0,postage:0,notes:"Broken gun"},
+    {id:2,toy:"Psycho",condition:"Loose",complete:"Y",price:70,sold:0,postage:0,notes:""},
+    {id:3,toy:"Radiation Ranger",condition:"Loose",complete:"N",price:50,sold:0,postage:0,notes:"Missing hoses"},
+    {id:4,toy:"Crusader Skater",condition:"Loose",complete:"N",price:30,sold:0,postage:0,notes:"Missing flag"},
+    {id:5,toy:"Puzzle",condition:"MOC",complete:"Y",price:35,sold:0,postage:0,notes:"Not on official checklist"}
+  ],
+  "Captain Planet":[
+    {id:1,toy:"Captain Planet (Flying)",condition:"Loose",complete:"N",price:15,sold:0,postage:0,notes:"Missing ring"},
+    {id:2,toy:"Captain Planet (Tornado)",condition:"Loose",complete:"N",price:60,sold:0,postage:0,notes:"Not working"},
+    {id:3,toy:"Wheeler (Sparking Action)",condition:"Loose",complete:"N",price:10,sold:0,postage:0,notes:"Missing ring"},
+    {id:4,toy:"Wheeler (Grappling Hook)",condition:"Loose",complete:"N",price:10,sold:0,postage:0,notes:"Missing accessories"},
+    {id:5,toy:"Ma-Ti (Pink Jacket) / Kwame (Green Shorts)",condition:"Loose",complete:"N",price:10,sold:0,postage:0,notes:"Missing accessories"},
+    {id:6,toy:"Argos Bleak",condition:"Loose",complete:"N",price:70,sold:0,postage:0,notes:"Missing missile"},
+    {id:7,toy:"Hoggish Greedly",condition:"Loose",complete:"Y",price:30,sold:0,postage:0,notes:""},
+    {id:8,toy:"Duke Nukem (Euro Version)",condition:"Loose",complete:"Y",price:20,sold:0,postage:0,notes:""},
+    {id:9,toy:"Toxic Cannon",condition:"Loose",complete:"N",price:50,sold:0,postage:0,notes:"Missing cap"},
+    {id:10,toy:"Planeteer Power Ring (Gold)",condition:"Loose",complete:"Y",price:15,sold:0,postage:0,notes:""}
+  ],
+  Reboot:[
+    {id:1,toy:"Bob (Green Suit)",condition:"MOC",complete:"Y",price:22,sold:0,postage:23.5,notes:""},
+    {id:2,toy:"Dot",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""},
+    {id:3,toy:"Enzo",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""},
+    {id:4,toy:"Hexadecimal",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""},
+    {id:5,toy:"Megabyte",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""},
+    {id:6,toy:"Hack",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""},
+    {id:7,toy:"Slash",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""},
+    {id:8,toy:"Enzo (Flying)",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""}
+  ]
+};
+
+let state={activeLine:null,collection:null,modal:null,editItem:null,confirmDeleteId:null,filterComplete:'all',filterCondition:'all',filterSearch:''};
+
+function loadFromStorage(){try{const r=localStorage.getItem(STORAGE_KEY);state.collection=r?JSON.parse(r):JSON.parse(JSON.stringify(DEFAULT_DATA));}catch(e){state.collection=JSON.parse(JSON.stringify(DEFAULT_DATA));}}
+function saveToStorage(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state.collection));}catch(e){alert('Could not save.');}}
+function getStats(line){const items=state.collection[line]||[];const released=flatReleased(line);const owned=new Set(items.map(i=>i.toy.trim().toLowerCase()));const releasedOwned=released.filter(r=>owned.has(r.toLowerCase())).length;const spent=items.reduce((s,i)=>s+(i.price||0),0);const sold=items.reduce((s,i)=>s+(i.sold||0),0);return{items,released,releasedOwned,spent,sold};}
+function getMissingByGroup(line){const items=state.collection[line]||[];const owned=new Set(items.map(i=>i.toy.trim().toLowerCase()));const result={};for(const[group,toys]of Object.entries(RELEASED[line]||{})){const missing=toys.filter(t=>!owned.has(t.toLowerCase()));if(missing.length)result[group]=missing;}return result;}
+function completeBadge(v){if(v==='Y')return'<span class="badge badge-green">Complete</span>';if(v==='N')return'<span class="badge badge-amber">Incomplete</span>';return'<span class="badge badge-gray">Unknown</span>';}
+function conditionBadge(v){const c=v||'';if(c==='MOC')return'<span class="badge badge-green">MOC</span>';if(c==='Boxed')return'<span class="badge badge-amber">Boxed</span>';return'<span class="badge badge-gray">'+(c||'Loose')+'</span>';}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function renderOverview(){
+  const lines=Object.keys(state.collection);
+  const totalSpent=lines.reduce((s,l)=>s+getStats(l).spent,0);
+  const totalSold=lines.reduce((s,l)=>s+getStats(l).sold,0);
+  const totalItems=lines.reduce((s,l)=>s+(state.collection[l]||[]).length,0);
+  const cards=lines.map(line=>{const{released,releasedOwned,spent}=getStats(line);const pct=released.length?Math.round((releasedOwned/released.length)*100):0;return`<div class="line-card" onclick="goToLine('${esc(line)}')"><div class="line-name">${esc(line)}</div><div class="line-progress"><div class="line-progress-fill" style="width:${pct}%"></div></div><div class="line-meta">${releasedOwned}/${released.length} released &middot; $${spent.toFixed(0)} spent</div></div>`;}).join('');
+  return`${renderInstallBanner()}<div class="stats-row"><div class="stat"><div class="stat-label">Total spent</div><div class="stat-value">$${totalSpent.toFixed(0)}</div></div><div class="stat"><div class="stat-label">Total sold</div><div class="stat-value">$${totalSold.toFixed(0)}</div></div><div class="stat"><div class="stat-label">Net cost</div><div class="stat-value">$${(totalSpent-totalSold).toFixed(0)}</div></div><div class="stat"><div class="stat-label">Items tracked</div><div class="stat-value">${totalItems}</div></div></div><div class="overview-grid">${cards}</div>`;
+}
+function filteredItems(line){return(state.collection[line]||[]).filter(i=>{if(state.filterComplete!=='all'&&i.complete!==state.filterComplete)return false;if(state.filterCondition!=='all'&&i.condition!==state.filterCondition)return false;if(state.filterSearch&&!i.toy.toLowerCase().includes(state.filterSearch.toLowerCase()))return false;return true;});}
+function actionCell(line,id){if(state.confirmDeleteId===id){return`<div class="delete-confirm"><span>Remove?</span><button class="btn btn-danger-confirm" onclick="doDelete('${esc(line)}',${id})">Yes</button><button class="btn btn-cancel-sm" onclick="cancelDelete()">No</button></div>`;}return`<div class="actions-cell"><button class="btn btn-sm" onclick="openEdit('${esc(line)}',${id})">Edit</button><button class="btn btn-sm" style="color:var(--red)" onclick="askDelete(${id})">Del</button></div>`;}
+function renderLine(line){const{items,released,releasedOwned,spent,sold}=getStats(line);const pct=released.length?Math.round((releasedOwned/released.length)*100):0;const net=spent-sold;const missingGroups=getMissingByGroup(line);const filtered=filteredItems(line);const rows=filtered.length?filtered.map(i=>`<tr><td>${esc(i.toy)}</td><td>${conditionBadge(i.condition)}</td><td>${completeBadge(i.complete)}</td><td>$${(i.price||0).toFixed(0)}</td><td>${i.sold?'$'+i.sold.toFixed(0):'&mdash;'}</td><td style="color:var(--text-secondary);font-size:12px;max-width:120px">${esc(i.notes||'')}</td><td>${actionCell(line,i.id)}</td></tr>`).join(''):`<tr><td colspan="7"><div class="empty">No items match your filters</div></td></tr>`;const totalMissing=Object.values(missingGroups).flat().length;const missingSection=totalMissing>0?`<div style="margin-top:1.25rem"><div class="section-title">Still missing (${totalMissing})</div>${Object.entries(missingGroups).map(([g,toys])=>`<div style="margin-bottom:10px"><div class="group-label">${esc(g)}</div><div>${toys.map(m=>`<span class="missing-chip" onclick="openAddWithToy('${esc(line)}','${m.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">${esc(m)} +</span>`).join('')}</div></div>`).join('')}</div>`:`<div style="margin-top:1rem"><span class="badge badge-green">&#10003; Collection complete!</span></div>`;return`<div class="stats-row"><div class="stat"><div class="stat-label">Completeness</div><div class="stat-value">${pct}%</div><div class="stat-sub">${releasedOwned} of ${released.length}</div></div><div class="stat"><div class="stat-label">Items owned</div><div class="stat-value">${items.length}</div></div><div class="stat"><div class="stat-label">Spent</div><div class="stat-value">$${spent.toFixed(0)}</div></div><div class="stat"><div class="stat-label">Net cost</div><div class="stat-value">$${net.toFixed(0)}</div><div class="stat-sub">after $${sold.toFixed(0)} sold</div></div></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div><div class="add-btn-row"><button class="btn btn-primary" onclick="openAdd('${esc(line)}')">+ Add item</button></div><div class="filter-row"><input type="text" placeholder="Search..." value="${esc(state.filterSearch)}" oninput="setFilter('search',this.value)"><select onchange="setFilter('complete',this.value)"><option value="all" ${state.filterComplete==='all'?'selected':''}>All items</option><option value="Y" ${state.filterComplete==='Y'?'selected':''}>Complete only</option><option value="N" ${state.filterComplete==='N'?'selected':''}>Incomplete only</option></select><select onchange="setFilter('condition',this.value)"><option value="all" ${state.filterCondition==='all'?'selected':''}>All conditions</option><option value="Loose" ${state.filterCondition==='Loose'?'selected':''}>Loose</option><option value="Boxed" ${state.filterCondition==='Boxed'?'selected':''}>Boxed</option><option value="MOC" ${state.filterCondition==='MOC'?'selected':''}>MOC</option></select></div><div class="table-wrap"><table><thead><tr><th>Item</th><th>Cond.</th><th>OK?</th><th>Paid</th><th>Sold</th><th>Notes</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>${missingSection}`;}
+function renderModal(){if(!state.modal)return'';const line=state.activeLine;const isEdit=!!(state.editItem&&state.editItem.id);const d=state.editItem||{toy:'',condition:'Loose',complete:'Y',price:'',sold:'',postage:'',notes:''};const allToys=Object.values(RELEASED[line]||{}).flat();const toyField=isEdit?`<input type="text" id="m-toy" value="${esc(d.toy)}">`:`<input type="text" id="m-toy" value="${esc(d.toy||'')}" list="released-toys"><datalist id="released-toys">${allToys.map(r=>`<option value="${esc(r)}">`).join('')}</datalist>`;return`<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal"><h2>${isEdit?'Edit':'Add'} item &mdash; ${esc(line)}</h2><div class="form-group"><label>Item name</label>${toyField}</div><div class="form-row"><div class="form-group"><label>Condition</label><select id="m-cond"><option ${d.condition==='Loose'?'selected':''}>Loose</option><option ${d.condition==='Boxed'?'selected':''}>Boxed</option><option ${d.condition==='MOC'?'selected':''}>MOC</option></select></div><div class="form-group"><label>Complete?</label><select id="m-complete"><option value="Y" ${d.complete==='Y'?'selected':''}>Yes</option><option value="N" ${d.complete==='N'?'selected':''}>No</option><option value="" ${!d.complete?'selected':''}>Unknown</option></select></div></div><div class="form-row"><div class="form-group"><label>Purchase price ($)</label><input type="number" inputmode="decimal" id="m-price" value="${d.price||''}" step="0.01" placeholder="0"></div><div class="form-group"><label>Sold for ($)</label><input type="number" inputmode="decimal" id="m-sold" value="${d.sold||''}" step="0.01" placeholder="0"></div></div><div class="form-group"><label>Postage ($)</label><input type="number" inputmode="decimal" id="m-postage" value="${d.postage||''}" step="0.01" placeholder="0"></div><div class="form-group"><label>Notes</label><textarea id="m-notes">${esc(d.notes||'')}</textarea></div><div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveItem('${esc(line)}',${isEdit?d.id:'null'})">${isEdit?'Save changes':'Add to collection'}</button></div></div></div>`;}
+function render(){const lines=Object.keys(state.collection);const app=document.getElementById('app');const tabs=`<div class="tabs"><button class="tab ${state.activeLine===null?'active':''}" onclick="goToLine(null)">Overview</button>${lines.map(l=>`<button class="tab ${state.activeLine===l?'active':''}" onclick="goToLine('${esc(l)}')">${esc(l)}</button>`).join('')}</div>`;let content='';if(state.activeLine===null)content=renderOverview();else content=renderLine(state.activeLine);app.innerHTML=`<div class="header"><div><h1>Toy Collection Tracker</h1><p>${lines.length} toy lines &middot; ${Object.values(state.collection).reduce((s,a)=>s+a.length,0)} items</p></div></div>${tabs}${content}${renderModal()}`;}
+
+window.goToLine=line=>{state.activeLine=line;state.filterComplete='all';state.filterCondition='all';state.filterSearch='';state.confirmDeleteId=null;render();};
+window.setFilter=(type,val)=>{if(type==='complete')state.filterComplete=val;if(type==='condition')state.filterCondition=val;if(type==='search')state.filterSearch=val;render();};
+window.openAdd=line=>{state.modal=true;state.editItem=null;render();};
+window.openAddWithToy=(line,toy)=>{state.activeLine=line;state.modal=true;state.editItem={toy,condition:'Loose',complete:'',price:'',sold:'',postage:'',notes:''};render();};
+window.openEdit=(line,id)=>{const item=(state.collection[line]||[]).find(i=>i.id===id);if(!item)return;state.modal=true;state.editItem={...item};render();};
+window.closeModal=()=>{state.modal=null;state.editItem=null;render();};
+window.askDelete=id=>{state.confirmDeleteId=id;render();};
+window.cancelDelete=()=>{state.confirmDeleteId=null;render();};
+window.doDelete=(line,id)=>{state.collection[line]=(state.collection[line]||[]).filter(i=>i.id!==id);state.confirmDeleteId=null;saveToStorage();render();};
+window.saveItem=(line,id)=>{const toy=document.getElementById('m-toy').value.trim();if(!toy){alert('Please enter an item name.');return;}const item={toy,condition:document.getElementById('m-cond').value,complete:document.getElementById('m-complete').value,price:parseFloat(document.getElementById('m-price').value)||0,sold:parseFloat(document.getElementById('m-sold').value)||0,postage:parseFloat(document.getElementById('m-postage').value)||0,notes:document.getElementById('m-notes').value.trim()};if(!state.collection[line])state.collection[line]=[];if(id===null||id==='null'){const ids=(state.collection[line]||[]).map(i=>i.id);item.id=ids.length?Math.max(...ids)+1:1;state.collection[line].push(item);}else{const idx=state.collection[line].findIndex(i=>i.id===id);if(idx>=0)state.collection[line][idx]={...item,id};}state.modal=null;state.editItem=null;saveToStorage();render();};
+
+loadFromStorage();
+render();
+</script>
+</body>
+</html>
