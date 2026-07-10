@@ -81,7 +81,7 @@ tr:last-child td{border-bottom:none}
 .section-title{font-size:14px;font-weight:700;margin-bottom:8px}
 .group-label{font-size:11px;color:var(--text-secondary);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.02em}
 .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.actions-cell{display:flex;gap:4px;white-space:nowrap}
+.actions-cell{display:flex;gap:4px;white-space:nowrap;flex-wrap:wrap}
 .install-banner{background:var(--green-bg);border:1px solid #a8dcc8;border-radius:var(--radius-md);padding:12px 14px;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .install-banner p{font-size:13px;color:var(--accent-dark);line-height:1.4}
 .install-banner strong{display:block;margin-bottom:2px}
@@ -89,22 +89,16 @@ tr:last-child td{border-bottom:none}
 .manual-install{background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:1.25rem;font-size:13px;color:var(--text-secondary);line-height:1.5}
 .manual-install strong{color:var(--text-primary);display:block;margin-bottom:4px}
 .manual-install a{color:var(--accent);text-decoration:none;font-weight:500}
+/* Transformers grouped rows */
+.tf-group-row td{background:var(--bg-card);border-bottom:none;padding-bottom:4px}
+.tf-copy-row td{background:var(--bg-secondary);font-size:12px;padding:5px 8px;border-bottom:none}
+.tf-copy-row:last-of-type td{border-bottom:1px solid var(--border-light)}
+.tf-copy-row td:first-child{padding-left:20px;color:var(--text-secondary)}
 </style>
 </head>
 <body>
 <div class="app" id="app"></div>
 <script>
-// ── Service Worker via separate sw.js path ────────────────────────────────
-// We write the SW as a same-origin script using a fetch-intercepted response
-// so it can register properly on GitHub Pages
-const SW_SRC = `
-self.addEventListener('install', e => { self.skipWaiting(); });
-self.addEventListener('activate', e => { e.waitUntil(clients.claim()); });
-self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });
-`;
-
-
-
 // ── Install prompt ────────────────────────────────────────────────────────
 let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', e => {
@@ -130,7 +124,12 @@ window.dismissInstall = function(){
   localStorage.setItem('pwa-dismissed','1');
   render();
 };
-
+window.exportData = function(){
+  const a = document.createElement('a');
+  a.href = 'data:application/json,' + encodeURIComponent(localStorage.getItem(STORAGE_KEY));
+  a.download = 'toy-collection-backup.json';
+  a.click();
+};
 function renderInstallBanner(){
   if (isStandalone()) return '';
   if (localStorage.getItem('pwa-installed')) return '';
@@ -144,11 +143,10 @@ function renderInstallBanner(){
       </div>
     </div>`;
   }
-  // Fallback: show manual instructions if on HTTPS but prompt hasn't fired yet
   if (location.protocol === 'https:') {
     return `<div class="manual-install">
       <strong>Add to home screen</strong>
-      Tap Chrome's <strong>three-dot menu ⋮</strong> &rarr; <strong>Add to Home screen</strong> &rarr; <strong>Install</strong> to get a permanent app icon.
+      Tap Chrome's <strong>three-dot menu \u22ee</strong> &rarr; <strong>Add to Home screen</strong> &rarr; <strong>Install</strong> to get a permanent app icon.
     </div>`;
   }
   return '';
@@ -196,6 +194,9 @@ const RELEASED={
     "Box Sets":["Original Collector Edition #1","Original Collector Edition #2"]
   }
 };
+
+// Transformers uses dual-condition tracking (must own Boxed AND Loose)
+const DUAL_CONDITION_LINES = new Set(['Transformers']);
 
 function flatReleased(l){return Object.values(RELEASED[l]||{}).flat();}
 
@@ -263,30 +264,191 @@ const DEFAULT_DATA={
 };
 
 let state={activeLine:null,collection:null,modal:null,editItem:null,confirmDeleteId:null,filterComplete:'all',filterCondition:'all',filterSearch:''};
+
 function loadFromStorage(){try{const r=localStorage.getItem(STORAGE_KEY);state.collection=r?JSON.parse(r):JSON.parse(JSON.stringify(DEFAULT_DATA));}catch(e){state.collection=JSON.parse(JSON.stringify(DEFAULT_DATA));}}
 function saveToStorage(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state.collection));}catch(e){alert('Could not save.');}}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+// ── Transformers dual-condition logic ─────────────────────────────────────
+function getTFGrouped(line){
+  const items=state.collection[line]||[];
+  const groups={};
+  items.forEach(i=>{
+    const key=i.toy.trim().toLowerCase();
+    if(!groups[key])groups[key]={name:i.toy.trim(),boxed:[],loose:[],other:[]};
+    const c=(i.condition||'').toLowerCase();
+    if(c==='boxed')groups[key].boxed.push(i);
+    else if(c==='loose')groups[key].loose.push(i);
+    else groups[key].other.push(i);
+  });
+  return groups;
+}
+function getTFStats(line){
+  const released=flatReleased(line);
+  const groups=getTFGrouped(line);
+  const items=state.collection[line]||[];
+  let fullyComplete=0,partialOwned=0;
+  released.forEach(r=>{
+    const g=groups[r.toLowerCase()];
+    if(!g)return;
+    const hasBoxed=g.boxed.length>0,hasLoose=g.loose.length>0;
+    if(hasBoxed&&hasLoose)fullyComplete++;
+    else if(hasBoxed||hasLoose)partialOwned++;
+  });
+  const spent=items.reduce((s,i)=>s+(i.price||0),0);
+  const sold=items.reduce((s,i)=>s+(i.sold||0),0);
+  return{released,fullyComplete,partialOwned,spent,sold,items};
+}
+function getTFMissingByGroup(line){
+  const groups=getTFGrouped(line);
+  const result={};
+  for(const[groupName,toys]of Object.entries(RELEASED[line]||{})){
+    const missing=[];
+    toys.forEach(toy=>{
+      const g=groups[toy.toLowerCase()];
+      if(!g||g.boxed.length===0)missing.push({toy,condition:'Boxed'});
+      if(!g||g.loose.length===0)missing.push({toy,condition:'Loose'});
+    });
+    if(missing.length)result[groupName]=missing;
+  }
+  return result;
+}
+
+// ── Standard stats ────────────────────────────────────────────────────────
 function getStats(line){const items=state.collection[line]||[];const released=flatReleased(line);const owned=new Set(items.map(i=>i.toy.trim().toLowerCase()));const releasedOwned=released.filter(r=>owned.has(r.toLowerCase())).length;const spent=items.reduce((s,i)=>s+(i.price||0),0);const sold=items.reduce((s,i)=>s+(i.sold||0),0);return{items,released,releasedOwned,spent,sold};}
 function getMissingByGroup(line){const items=state.collection[line]||[];const owned=new Set(items.map(i=>i.toy.trim().toLowerCase()));const result={};for(const[group,toys]of Object.entries(RELEASED[line]||{})){const missing=toys.filter(t=>!owned.has(t.toLowerCase()));if(missing.length)result[group]=missing;}return result;}
 function completeBadge(v){if(v==='Y')return'<span class="badge badge-green">Complete</span>';if(v==='N')return'<span class="badge badge-amber">Incomplete</span>';return'<span class="badge badge-gray">Unknown</span>';}
 function conditionBadge(v){const c=v||'';if(c==='MOC')return'<span class="badge badge-green">MOC</span>';if(c==='Boxed')return'<span class="badge badge-amber">Boxed</span>';return'<span class="badge badge-gray">'+(c||'Loose')+'</span>';}
-function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function renderOverview(){const lines=Object.keys(state.collection);const totalSpent=lines.reduce((s,l)=>s+getStats(l).spent,0);const totalSold=lines.reduce((s,l)=>s+getStats(l).sold,0);const totalItems=lines.reduce((s,l)=>s+(state.collection[l]||[]).length,0);const cards=lines.map(line=>{const{released,releasedOwned,spent}=getStats(line);const pct=released.length?Math.round((releasedOwned/released.length)*100):0;return`<div class="line-card" onclick="goToLine('${esc(line)}')"><div class="line-name">${esc(line)}</div><div class="line-progress"><div class="line-progress-fill" style="width:${pct}%"></div></div><div class="line-meta">${releasedOwned}/${released.length} released &middot; $${spent.toFixed(0)} spent</div></div>`;}).join('');return`${renderInstallBanner()}<div class="stats-row"><div class="stat"><div class="stat-label">Total spent</div><div class="stat-value">$${totalSpent.toFixed(0)}</div></div><div class="stat"><div class="stat-label">Total sold</div><div class="stat-value">$${totalSold.toFixed(0)}</div></div><div class="stat"><div class="stat-label">Net cost</div><div class="stat-value">$${(totalSpent-totalSold).toFixed(0)}</div></div><div class="stat"><div class="stat-label">Items tracked</div><div class="stat-value">${totalItems}</div></div></div><div class="overview-grid">${cards}</div>`;}
+
+// ── Overview ──────────────────────────────────────────────────────────────
+function renderOverview(){
+  const lines=Object.keys(state.collection);
+  const totalSpent=lines.reduce((s,l)=>s+(DUAL_CONDITION_LINES.has(l)?getTFStats(l).spent:getStats(l).spent),0);
+  const totalSold=lines.reduce((s,l)=>s+(DUAL_CONDITION_LINES.has(l)?getTFStats(l).sold:getStats(l).sold),0);
+  const totalItems=lines.reduce((s,l)=>s+(state.collection[l]||[]).length,0);
+  const cards=lines.map(line=>{
+    let pct,meta,spent;
+    if(DUAL_CONDITION_LINES.has(line)){
+      const st=getTFStats(line);
+      pct=st.released.length?Math.round((st.fullyComplete/st.released.length)*100):0;
+      meta=`${st.fullyComplete} fully complete, ${st.partialOwned} partial`;
+      spent=st.spent;
+    }else{
+      const st=getStats(line);
+      pct=st.released.length?Math.round((st.releasedOwned/st.released.length)*100):0;
+      meta=`${st.releasedOwned}/${st.released.length} released`;
+      spent=st.spent;
+    }
+    return`<div class="line-card" onclick="goToLine('${esc(line)}')"><div class="line-name">${esc(line)}</div><div class="line-progress"><div class="line-progress-fill" style="width:${pct}%"></div></div><div class="line-meta">${meta} &middot; $${spent.toFixed(0)} spent</div></div>`;
+  }).join('');
+  return`${renderInstallBanner()}<div class="stats-row"><div class="stat"><div class="stat-label">Total spent</div><div class="stat-value">$${totalSpent.toFixed(0)}</div></div><div class="stat"><div class="stat-label">Total sold</div><div class="stat-value">$${totalSold.toFixed(0)}</div></div><div class="stat"><div class="stat-label">Net cost</div><div class="stat-value">$${(totalSpent-totalSold).toFixed(0)}</div></div><div class="stat"><div class="stat-label">Items tracked</div><div class="stat-value">${totalItems}</div></div></div><div class="overview-grid">${cards}</div>`;
+}
+
 function filteredItems(line){return(state.collection[line]||[]).filter(i=>{if(state.filterComplete!=='all'&&i.complete!==state.filterComplete)return false;if(state.filterCondition!=='all'&&i.condition!==state.filterCondition)return false;if(state.filterSearch&&!i.toy.toLowerCase().includes(state.filterSearch.toLowerCase()))return false;return true;});}
 function actionCell(line,id){if(state.confirmDeleteId===id){return`<div class="delete-confirm"><span>Remove?</span><button class="btn btn-danger-confirm" onclick="doDelete('${esc(line)}',${id})">Yes</button><button class="btn btn-cancel-sm" onclick="cancelDelete()">No</button></div>`;}return`<div class="actions-cell"><button class="btn btn-sm" onclick="openEdit('${esc(line)}',${id})">Edit</button><button class="btn btn-sm" style="color:var(--red)" onclick="askDelete(${id})">Del</button></div>`;}
-function renderLine(line){const{items,released,releasedOwned,spent,sold}=getStats(line);const pct=released.length?Math.round((releasedOwned/released.length)*100):0;const net=spent-sold;const missingGroups=getMissingByGroup(line);const filtered=filteredItems(line);const rows=filtered.length?filtered.map(i=>`<tr><td>${esc(i.toy)}</td><td>${conditionBadge(i.condition)}</td><td>${completeBadge(i.complete)}</td><td>$${(i.price||0).toFixed(0)}</td><td>${i.sold?'$'+i.sold.toFixed(0):'&mdash;'}</td><td style="color:var(--text-secondary);font-size:12px;max-width:120px">${esc(i.notes||'')}</td><td>${actionCell(line,i.id)}</td></tr>`).join(''):`<tr><td colspan="7"><div class="empty">No items match your filters</div></td></tr>`;const totalMissing=Object.values(missingGroups).flat().length;const missingSection=totalMissing>0?`<div style="margin-top:1.25rem"><div class="section-title">Still missing (${totalMissing})</div>${Object.entries(missingGroups).map(([g,toys])=>`<div style="margin-bottom:10px"><div class="group-label">${esc(g)}</div><div>${toys.map(m=>`<span class="missing-chip" onclick="openAddWithToy('${esc(line)}','${m.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">${esc(m)} +</span>`).join('')}</div></div>`).join('')}</div>`:`<div style="margin-top:1rem"><span class="badge badge-green">&#10003; Collection complete!</span></div>`;return`<div class="stats-row"><div class="stat"><div class="stat-label">Completeness</div><div class="stat-value">${pct}%</div><div class="stat-sub">${releasedOwned} of ${released.length}</div></div><div class="stat"><div class="stat-label">Items owned</div><div class="stat-value">${items.length}</div></div><div class="stat"><div class="stat-label">Spent</div><div class="stat-value">$${spent.toFixed(0)}</div></div><div class="stat"><div class="stat-label">Net cost</div><div class="stat-value">$${net.toFixed(0)}</div><div class="stat-sub">after $${sold.toFixed(0)} sold</div></div></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div><div class="add-btn-row"><button class="btn btn-primary" onclick="openAdd('${esc(line)}')">+ Add item</button></div><div class="filter-row"><input type="text" placeholder="Search..." value="${esc(state.filterSearch)}" oninput="setFilter('search',this.value)"><select onchange="setFilter('complete',this.value)"><option value="all" ${state.filterComplete==='all'?'selected':''}>All items</option><option value="Y" ${state.filterComplete==='Y'?'selected':''}>Complete only</option><option value="N" ${state.filterComplete==='N'?'selected':''}>Incomplete only</option></select><select onchange="setFilter('condition',this.value)"><option value="all" ${state.filterCondition==='all'?'selected':''}>All conditions</option><option value="Loose" ${state.filterCondition==='Loose'?'selected':''}>Loose</option><option value="Boxed" ${state.filterCondition==='Boxed'?'selected':''}>Boxed</option><option value="MOC" ${state.filterCondition==='MOC'?'selected':''}>MOC</option></select></div><div class="table-wrap"><table><thead><tr><th>Item</th><th>Cond.</th><th>OK?</th><th>Paid</th><th>Sold</th><th>Notes</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>${missingSection}`;}
-function renderModal(){if(!state.modal)return'';const line=state.activeLine;const isEdit=!!(state.editItem&&state.editItem.id);const d=state.editItem||{toy:'',condition:'Loose',complete:'Y',price:'',sold:'',postage:'',notes:''};const allToys=Object.values(RELEASED[line]||{}).flat();const toyField=isEdit?`<input type="text" id="m-toy" value="${esc(d.toy)}">`:`<input type="text" id="m-toy" value="${esc(d.toy||'')}" list="released-toys"><datalist id="released-toys">${allToys.map(r=>`<option value="${esc(r)}">`).join('')}</datalist>`;return`<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal"><h2>${isEdit?'Edit':'Add'} item &mdash; ${esc(line)}</h2><div class="form-group"><label>Item name</label>${toyField}</div><div class="form-row"><div class="form-group"><label>Condition</label><select id="m-cond"><option ${d.condition==='Loose'?'selected':''}>Loose</option><option ${d.condition==='Boxed'?'selected':''}>Boxed</option><option ${d.condition==='MOC'?'selected':''}>MOC</option></select></div><div class="form-group"><label>Complete?</label><select id="m-complete"><option value="Y" ${d.complete==='Y'?'selected':''}>Yes</option><option value="N" ${d.complete==='N'?'selected':''}>No</option><option value="" ${!d.complete?'selected':''}>Unknown</option></select></div></div><div class="form-row"><div class="form-group"><label>Purchase price ($)</label><input type="number" inputmode="decimal" id="m-price" value="${d.price||''}" step="0.01" placeholder="0"></div><div class="form-group"><label>Sold for ($)</label><input type="number" inputmode="decimal" id="m-sold" value="${d.sold||''}" step="0.01" placeholder="0"></div></div><div class="form-group"><label>Postage ($)</label><input type="number" inputmode="decimal" id="m-postage" value="${d.postage||''}" step="0.01" placeholder="0"></div><div class="form-group"><label>Notes</label><textarea id="m-notes">${esc(d.notes||'')}</textarea></div><div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveItem('${esc(line)}',${isEdit?d.id:'null'})">${isEdit?'Save changes':'Add to collection'}</button></div></div></div>`;}
-function render(){const lines=Object.keys(state.collection);const app=document.getElementById('app');const tabs=`<div class="tabs"><button class="tab ${state.activeLine===null?'active':''}" onclick="goToLine(null)">Overview</button>${lines.map(l=>`<button class="tab ${state.activeLine===l?'active':''}" onclick="goToLine('${esc(l)}')">${esc(l)}</button>`).join('')}</div>`;let content='';if(state.activeLine===null)content=renderOverview();else content=renderLine(state.activeLine);app.innerHTML=`<div class="header"><div><h1>Toy Collection Tracker</h1><p>${lines.length} toy lines &middot; ${Object.values(state.collection).reduce((s,a)=>s+a.length,0)} items</p></div></div>${tabs}${content}${renderModal()}`;}
+
+// ── Transformers grouped table ────────────────────────────────────────────
+function renderTFLine(line){
+  const st=getTFStats(line);
+  const pct=st.released.length?Math.round((st.fullyComplete/st.released.length)*100):0;
+  const net=st.spent-st.sold;
+  const missingGroups=getTFMissingByGroup(line);
+  const groups=getTFGrouped(line);
+  const search=state.filterSearch.toLowerCase();
+  const releasedLower=new Set(flatReleased(line).map(r=>r.toLowerCase()));
+  const seen=new Set();
+  const namesToRender=[];
+  // Released first, then any extras owned
+  [...flatReleased(line).map(r=>r.toLowerCase()),...Object.keys(groups).filter(n=>!releasedLower.has(n))].forEach(n=>{if(!seen.has(n)){seen.add(n);namesToRender.push(n);}});
+  let rows='';
+  namesToRender.forEach(nameLower=>{
+    const g=groups[nameLower];
+    if(!g)return;
+    if(search&&!g.name.toLowerCase().includes(search))return;
+    const allCopies=[...g.boxed,...g.loose,...g.other];
+    const visibleCopies=allCopies.filter(i=>{
+      if(state.filterCondition!=='all'&&i.condition!==state.filterCondition)return false;
+      if(state.filterComplete!=='all'&&i.complete!==state.filterComplete)return false;
+      return true;
+    });
+    if(visibleCopies.length===0)return;
+    const hasBoxed=g.boxed.length>0,hasLoose=g.loose.length>0;
+    let statusBadge;
+    if(hasBoxed&&hasLoose)statusBadge='<span class="badge badge-green">Boxed + Loose</span>';
+    else if(hasBoxed)statusBadge='<span class="badge badge-amber">Boxed only</span>';
+    else statusBadge='<span class="badge badge-amber">Loose only</span>';
+    const totalSpent=allCopies.reduce((s,i)=>s+(i.price||0),0);
+    const totalSold=allCopies.reduce((s,i)=>s+(i.sold||0),0);
+    rows+=`<tr class="tf-group-row"><td style="font-weight:600">${esc(g.name)}</td><td>${statusBadge}</td><td colspan="2" style="font-size:12px;color:var(--text-secondary)">$${totalSpent.toFixed(0)} spent${totalSold?` / $${totalSold.toFixed(0)} sold`:''}</td><td colspan="3"></td></tr>`;
+    visibleCopies.forEach(i=>{
+      rows+=`<tr class="tf-copy-row"><td>${conditionBadge(i.condition)}</td><td>${completeBadge(i.complete)}</td><td>$${(i.price||0).toFixed(0)}</td><td>${i.sold?'$'+i.sold.toFixed(0):'&mdash;'}</td><td style="color:var(--text-secondary);max-width:100px;font-size:11px">${esc(i.notes||'')}</td><td colspan="2">${actionCell(line,i.id)}</td></tr>`;
+    });
+  });
+  if(!rows)rows=`<tr><td colspan="7"><div class="empty">No items match your filters</div></td></tr>`;
+  const totalMissing=Object.values(missingGroups).flat().length;
+  const missingSection=totalMissing>0
+    ?`<div style="margin-top:1.25rem"><div class="section-title">Still needed (${totalMissing})</div>${Object.entries(missingGroups).map(([g,items])=>`<div style="margin-bottom:10px"><div class="group-label">${esc(g)}</div><div>${items.map(({toy,condition})=>`<span class="missing-chip" onclick="openAddWithToy('${esc(line)}','${toy.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}','${condition}')">${esc(toy)} <span style="font-size:10px;opacity:0.7">${condition}</span> +</span>`).join('')}</div></div>`).join('')}</div>`
+    :`<div style="margin-top:1rem"><span class="badge badge-green">&#10003; All figures owned in both conditions!</span></div>`;
+  return`<div class="stats-row"><div class="stat"><div class="stat-label">Fully complete</div><div class="stat-value">${pct}%</div><div class="stat-sub">${st.fullyComplete}/${st.released.length} boxed+loose</div></div><div class="stat"><div class="stat-label">Partial</div><div class="stat-value">${st.partialOwned}</div><div class="stat-sub">one condition only</div></div><div class="stat"><div class="stat-label">Spent</div><div class="stat-value">$${st.spent.toFixed(0)}</div></div><div class="stat"><div class="stat-label">Net cost</div><div class="stat-value">$${net.toFixed(0)}</div><div class="stat-sub">after $${st.sold.toFixed(0)} sold</div></div></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div><div class="add-btn-row"><button class="btn btn-primary" onclick="openAdd('${esc(line)}')">+ Add item</button></div><div class="filter-row"><input type="text" placeholder="Search..." value="${esc(state.filterSearch)}" oninput="setFilter('search',this.value)"><select onchange="setFilter('complete',this.value)"><option value="all" ${state.filterComplete==='all'?'selected':''}>All</option><option value="Y" ${state.filterComplete==='Y'?'selected':''}>Complete</option><option value="N" ${state.filterComplete==='N'?'selected':''}>Incomplete</option></select><select onchange="setFilter('condition',this.value)"><option value="all" ${state.filterCondition==='all'?'selected':''}>All conditions</option><option value="Loose" ${state.filterCondition==='Loose'?'selected':''}>Loose</option><option value="Boxed" ${state.filterCondition==='Boxed'?'selected':''}>Boxed</option></select></div><div class="table-wrap"><table><thead><tr><th>Item / Condition</th><th>Status</th><th>OK?</th><th>Paid</th><th>Sold</th><th>Notes</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>${missingSection}`;
+}
+
+// ── Standard line ─────────────────────────────────────────────────────────
+function renderLine(line){
+  if(DUAL_CONDITION_LINES.has(line))return renderTFLine(line);
+  const{items,released,releasedOwned,spent,sold}=getStats(line);
+  const pct=released.length?Math.round((releasedOwned/released.length)*100):0;
+  const net=spent-sold;
+  const missingGroups=getMissingByGroup(line);
+  const filtered=filteredItems(line);
+  const rows=filtered.length?filtered.map(i=>`<tr><td>${esc(i.toy)}</td><td>${conditionBadge(i.condition)}</td><td>${completeBadge(i.complete)}</td><td>$${(i.price||0).toFixed(0)}</td><td>${i.sold?'$'+i.sold.toFixed(0):'&mdash;'}</td><td style="color:var(--text-secondary);font-size:12px;max-width:120px">${esc(i.notes||'')}</td><td>${actionCell(line,i.id)}</td></tr>`).join(''):`<tr><td colspan="7"><div class="empty">No items match your filters</div></td></tr>`;
+  const totalMissing=Object.values(missingGroups).flat().length;
+  const missingSection=totalMissing>0?`<div style="margin-top:1.25rem"><div class="section-title">Still missing (${totalMissing})</div>${Object.entries(missingGroups).map(([g,toys])=>`<div style="margin-bottom:10px"><div class="group-label">${esc(g)}</div><div>${toys.map(m=>`<span class="missing-chip" onclick="openAddWithToy('${esc(line)}','${m.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}','')">${esc(m)} +</span>`).join('')}</div></div>`).join('')}</div>`:`<div style="margin-top:1rem"><span class="badge badge-green">&#10003; Collection complete!</span></div>`;
+  return`<div class="stats-row"><div class="stat"><div class="stat-label">Completeness</div><div class="stat-value">${pct}%</div><div class="stat-sub">${releasedOwned} of ${released.length}</div></div><div class="stat"><div class="stat-label">Items owned</div><div class="stat-value">${items.length}</div></div><div class="stat"><div class="stat-label">Spent</div><div class="stat-value">$${spent.toFixed(0)}</div></div><div class="stat"><div class="stat-label">Net cost</div><div class="stat-value">$${net.toFixed(0)}</div><div class="stat-sub">after $${sold.toFixed(0)} sold</div></div></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div><div class="add-btn-row"><button class="btn btn-primary" onclick="openAdd('${esc(line)}')">+ Add item</button></div><div class="filter-row"><input type="text" placeholder="Search..." value="${esc(state.filterSearch)}" oninput="setFilter('search',this.value)"><select onchange="setFilter('complete',this.value)"><option value="all" ${state.filterComplete==='all'?'selected':''}>All items</option><option value="Y" ${state.filterComplete==='Y'?'selected':''}>Complete only</option><option value="N" ${state.filterComplete==='N'?'selected':''}>Incomplete only</option></select><select onchange="setFilter('condition',this.value)"><option value="all" ${state.filterCondition==='all'?'selected':''}>All conditions</option><option value="Loose" ${state.filterCondition==='Loose'?'selected':''}>Loose</option><option value="Boxed" ${state.filterCondition==='Boxed'?'selected':''}>Boxed</option><option value="MOC" ${state.filterCondition==='MOC'?'selected':''}>MOC</option></select></div><div class="table-wrap"><table><thead><tr><th>Item</th><th>Cond.</th><th>OK?</th><th>Paid</th><th>Sold</th><th>Notes</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>${missingSection}`;
+}
+
+function renderModal(){
+  if(!state.modal)return'';
+  const line=state.activeLine;
+  const isEdit=!!(state.editItem&&state.editItem.id);
+  const d=state.editItem||{toy:'',condition:'Loose',complete:'Y',price:'',sold:'',postage:'',notes:''};
+  const allToys=Object.values(RELEASED[line]||{}).flat();
+  const isDual=DUAL_CONDITION_LINES.has(line);
+  const toyField=isEdit?`<input type="text" id="m-toy" value="${esc(d.toy)}">`:`<input type="text" id="m-toy" value="${esc(d.toy||'')}" list="released-toys"><datalist id="released-toys">${allToys.map(r=>`<option value="${esc(r)}">`).join('')}</datalist>`;
+  const condOptions=isDual
+    ?`<option ${d.condition==='Loose'?'selected':''}>Loose</option><option ${d.condition==='Boxed'?'selected':''}>Boxed</option>`
+    :`<option ${d.condition==='Loose'?'selected':''}>Loose</option><option ${d.condition==='Boxed'?'selected':''}>Boxed</option><option ${d.condition==='MOC'?'selected':''}>MOC</option>`;
+  return`<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal"><h2>${isEdit?'Edit':'Add'} item &mdash; ${esc(line)}</h2><div class="form-group"><label>Item name</label>${toyField}</div><div class="form-row"><div class="form-group"><label>Condition</label><select id="m-cond">${condOptions}</select></div><div class="form-group"><label>Accessories complete?</label><select id="m-complete"><option value="Y" ${d.complete==='Y'?'selected':''}>Yes</option><option value="N" ${d.complete==='N'?'selected':''}>No</option><option value="" ${!d.complete?'selected':''}>Unknown</option></select></div></div><div class="form-row"><div class="form-group"><label>Purchase price ($)</label><input type="number" inputmode="decimal" id="m-price" value="${d.price||''}" step="0.01" placeholder="0"></div><div class="form-group"><label>Sold for ($)</label><input type="number" inputmode="decimal" id="m-sold" value="${d.sold||''}" step="0.01" placeholder="0"></div></div><div class="form-group"><label>Postage ($)</label><input type="number" inputmode="decimal" id="m-postage" value="${d.postage||''}" step="0.01" placeholder="0"></div><div class="form-group"><label>Notes</label><textarea id="m-notes">${esc(d.notes||'')}</textarea></div><div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveItem('${esc(line)}',${isEdit?d.id:'null'})">${isEdit?'Save changes':'Add to collection'}</button></div></div></div>`;
+}
+
+function render(){
+  const lines=Object.keys(state.collection);
+  const app=document.getElementById('app');
+  const tabs=`<div class="tabs"><button class="tab ${state.activeLine===null?'active':''}" onclick="goToLine(null)">Overview</button>${lines.map(l=>`<button class="tab ${state.activeLine===l?'active':''}" onclick="goToLine('${esc(l)}')">${esc(l)}</button>`).join('')}</div>`;
+  let content='';
+  if(state.activeLine===null)content=renderOverview();
+  else content=renderLine(state.activeLine);
+  app.innerHTML=`<div class="header"><div><h1>Toy Collection Tracker</h1><p>${lines.length} toy lines &middot; ${Object.values(state.collection).reduce((s,a)=>s+a.length,0)} items</p></div><button class="btn btn-sm" onclick="exportData()">Export</button></div>${tabs}${content}${renderModal()}`;
+}
+
 window.goToLine=line=>{state.activeLine=line;state.filterComplete='all';state.filterCondition='all';state.filterSearch='';state.confirmDeleteId=null;render();};
 window.setFilter=(type,val)=>{if(type==='complete')state.filterComplete=val;if(type==='condition')state.filterCondition=val;if(type==='search')state.filterSearch=val;render();};
 window.openAdd=line=>{state.modal=true;state.editItem=null;render();};
-window.openAddWithToy=(line,toy)=>{state.activeLine=line;state.modal=true;state.editItem={toy,condition:'Loose',complete:'',price:'',sold:'',postage:'',notes:''};render();};
+window.openAddWithToy=(line,toy,condition)=>{state.activeLine=line;state.modal=true;state.editItem={toy,condition:condition||'Loose',complete:'',price:'',sold:'',postage:'',notes:''};render();};
 window.openEdit=(line,id)=>{const item=(state.collection[line]||[]).find(i=>i.id===id);if(!item)return;state.modal=true;state.editItem={...item};render();};
 window.closeModal=()=>{state.modal=null;state.editItem=null;render();};
 window.askDelete=id=>{state.confirmDeleteId=id;render();};
 window.cancelDelete=()=>{state.confirmDeleteId=null;render();};
 window.doDelete=(line,id)=>{state.collection[line]=(state.collection[line]||[]).filter(i=>i.id!==id);state.confirmDeleteId=null;saveToStorage();render();};
-window.saveItem=(line,id)=>{const toy=document.getElementById('m-toy').value.trim();if(!toy){alert('Please enter an item name.');return;}const item={toy,condition:document.getElementById('m-cond').value,complete:document.getElementById('m-complete').value,price:parseFloat(document.getElementById('m-price').value)||0,sold:parseFloat(document.getElementById('m-sold').value)||0,postage:parseFloat(document.getElementById('m-postage').value)||0,notes:document.getElementById('m-notes').value.trim()};if(!state.collection[line])state.collection[line]=[];if(id===null||id==='null'){const ids=(state.collection[line]||[]).map(i=>i.id);item.id=ids.length?Math.max(...ids)+1:1;state.collection[line].push(item);}else{const idx=state.collection[line].findIndex(i=>i.id===id);if(idx>=0)state.collection[line][idx]={...item,id};}state.modal=null;state.editItem=null;saveToStorage();render();};
-window.exportData=function(){const a=document.createElement('a');a.href='data:application/json,'+encodeURIComponent(localStorage.getItem(STORAGE_KEY));a.download='toy-collection-backup.json';a.click();};
+window.saveItem=(line,id)=>{
+  const toy=document.getElementById('m-toy').value.trim();
+  if(!toy){alert('Please enter an item name.');return;}
+  const item={toy,condition:document.getElementById('m-cond').value,complete:document.getElementById('m-complete').value,price:parseFloat(document.getElementById('m-price').value)||0,sold:parseFloat(document.getElementById('m-sold').value)||0,postage:parseFloat(document.getElementById('m-postage').value)||0,notes:document.getElementById('m-notes').value.trim()};
+  if(!state.collection[line])state.collection[line]=[];
+  if(id===null||id==='null'){const ids=(state.collection[line]||[]).map(i=>i.id);item.id=ids.length?Math.max(...ids)+1:1;state.collection[line].push(item);}
+  else{const idx=state.collection[line].findIndex(i=>i.id===id);if(idx>=0)state.collection[line][idx]={...item,id};}
+  state.modal=null;state.editItem=null;saveToStorage();render();
+};
+
 loadFromStorage();render();
 </script>
 </body>
