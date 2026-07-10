@@ -286,6 +286,7 @@ window.askDelete=id=>{state.confirmDeleteId=id;render();};
 window.cancelDelete=()=>{state.confirmDeleteId=null;render();};
 window.doDelete=(line,id)=>{state.collection[line]=(state.collection[line]||[]).filter(i=>i.id!==id);state.confirmDeleteId=null;saveToStorage();render();};
 window.saveItem=(line,id)=>{const toy=document.getElementById('m-toy').value.trim();if(!toy){alert('Please enter an item name.');return;}const item={toy,condition:document.getElementById('m-cond').value,complete:document.getElementById('m-complete').value,price:parseFloat(document.getElementById('m-price').value)||0,sold:parseFloat(document.getElementById('m-sold').value)||0,postage:parseFloat(document.getElementById('m-postage').value)||0,notes:document.getElementById('m-notes').value.trim()};if(!state.collection[line])state.collection[line]=[];if(id===null||id==='null'){const ids=(state.collection[line]||[]).map(i=>i.id);item.id=ids.length?Math.max(...ids)+1:1;state.collection[line].push(item);}else{const idx=state.collection[line].findIndex(i=>i.id===id);if(idx>=0)state.collection[line][idx]={...item,id};}state.modal=null;state.editItem=null;saveToStorage();render();};
+window.exportData=function(){const a=document.createElement('a');a.href='data:application/json,'+encodeURIComponent(localStorage.getItem(STORAGE_KEY));a.download='toy-collection-backup.json';a.click();};
 loadFromStorage();render();
 </script>
 </body>
