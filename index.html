@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -169,9 +169,10 @@ const RELEASED={
   Transformers:{
     "Numbered (SS-86-01 to 32)":["Jazz (SS-86-01)","Kup (SS-86-02)","Blurr (SS-86-03)","Hot Rod (SS-86-04)","Scourge (SS-86-05)","Grimlock (SS-86-06)","Slug (SS-86-07)","Gnaw (SS-86-08)","Wreck-Gar (SS-86-09)","Sweep (SS-86-10)","Perceptor (SS-86-11)","Coronation Starscream (SS-86-12)","Junkheap (SS-86-14)","Sludge (SS-86-15)","Arcee (SS-86-16)","Ironhide (SS-86-17)","Snarl (SS-86-19)","Ultra Magnus (SS-86-21)","Brawn (SS-86-22)","Ratchet (SS-86-23)","Scrapheap (SS-86-24)","Swoop (SS-86-26)","Dying Brawn (SS-86-27)","Dying Ratchet (SS-86-28)","Bumblebee (SS-86-29)","Springer (SS-86-30)","Optimus Prime (SS-86-31)","Galvatron (SS-86-32)"],
     "Non-Numbered (2025+)":["Bonecrusher","Scrapper","Hook & Long Haul","Scavenger","Mixmaster","Megatron","Windcharger","Thundercracker","Soundwave (4-Pack)","Kranix","Sunstreaker","Wheeljack","Shockwave","Skywarp","Astrotrain","Cliffjumper (2025)","Cyclonus","Blitzwing"],
-    "Exclusives":["Cliffjumper (BB Exclusive, SS-86-13bb)","Dying Prowl (SS-86-20bb)","Dying Ironhide (SS-86-24bb)","Blaster & Eject (SS-86-25, Target)","Perceptor & Ratbat & Ramhorn (Target)","MTMTE Scourge (Target)","MTMTE Hot Rod (Target)","MTMTE Optimus Prime (Target)","MTMTE Megatron (Target)"],
+    "Exclusives":["Cliffjumper (BB Exclusive, SS-86-13bb)","Dying Prowl (SS-86-20bb)","Dying Ironhide (SS-86-24bb)","Blaster & Eject (SS-86-25, Target)","Perceptor & Ratbat & Ramhorn (Target)","MTMTE Scourge (Target)","MTMTE Hot Rod (Target)","MTMTE Optimus Prime (Target)","MTMTE Megatron (Target)","MTMTE Hound (Target)"],
     "Core Class":["Spike Witwicky (Core)","Ratchet (Core)","Wheelie (Core)","Rumble (Core)","Ironhide (Core)","Frenzy (Core)","Steeljaw (Core)"],
-    "Combiner":["Devastator (6-Pack)"]
+    "Combiner":["Devastator (6-Pack)"],
+    "Role Play":["Matrix of Leadership (RP)"]
   },
   "Toxic Crusaders":{
     "Figures":["Bonehead","Dr. Killemoff","Headbanger","Junkyard","Major Disaster","Nozone","Psycho","Radiation Ranger","Toxie"],
@@ -210,67 +211,1219 @@ const DUAL_CONDITION_LINES = new Set(['Transformers']);
 function flatReleased(l){return Object.values(RELEASED[l]||{}).flat();}
 
 const DEFAULT_DATA={
-  Voltron:[
-    {id:1,toy:"Voltron Lions + Pilots",condition:"Loose",complete:"Y",price:550,sold:0,postage:0,notes:""},
-    {id:2,toy:"Haggar the Witch",condition:"Loose",complete:"Y",price:10,sold:0,postage:0,notes:""},
-    {id:3,toy:"King Zarkon",condition:"Loose",complete:"Y",price:30,sold:0,postage:0,notes:""},
-    {id:4,toy:"Doom Commander",condition:"Loose",complete:"Y",price:25,sold:0,postage:0,notes:""},
-    {id:5,toy:"Robeast Scorpius",condition:"Loose",complete:"Y",price:20,sold:0,postage:0,notes:""},
-    {id:6,toy:"Skull Tank",condition:"Loose",complete:"Y",price:70,sold:0,postage:15,notes:""},
-    {id:7,toy:"Prince Lotor",condition:"Loose",complete:"Y",price:30,sold:0,postage:0,notes:""},
-    {id:8,toy:"Castle of Lions",condition:"Loose",complete:"Y",price:190,sold:0,postage:0,notes:""},
-    {id:9,toy:"Coffin of Darkness",condition:"Loose",complete:"Y",price:90,sold:0,postage:0,notes:""},
-    {id:10,toy:"Skull Scavenger",condition:"Loose",complete:"Y",price:35,sold:0,postage:11,notes:"Previously listed as Skull Commander"},
-    {id:11,toy:"Robeast Mutilor",condition:"Loose",complete:"Y",price:29,sold:0,postage:0,notes:"Previously listed as Robeast"},
-    {id:12,toy:"Haggar Shield",condition:"Loose",complete:"Y",price:25,sold:0,postage:0,notes:"Accessory - not an official release"}
+  "Voltron": [
+    {
+      "toy": "Haggar the Witch",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 35,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Missing staff",
+      "id": 2
+    },
+    {
+      "id": 3,
+      "toy": "King Zarkon",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 30,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "toy": "Doom Commander",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 25,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Missing Shield",
+      "id": 4
+    },
+    {
+      "toy": "Robeast Scorpius",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 35,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 5
+    },
+    {
+      "id": 6,
+      "toy": "Skull Tank",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 70,
+      "sold": 0,
+      "postage": 15,
+      "notes": ""
+    },
+    {
+      "id": 7,
+      "toy": "Prince Lotor",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 30,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "toy": "Castle of Lions",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 190,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 8
+    },
+    {
+      "id": 9,
+      "toy": "Coffin of Darkness",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 90,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "toy": "Skull Scavenger",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 35,
+      "sold": 0,
+      "postage": 11,
+      "notes": "Missing shield",
+      "id": 10
+    },
+    {
+      "toy": "Robeast Mutilor",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 29,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Missing weapon",
+      "id": 11
+    },
+    {
+      "toy": "Black Lion",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 55,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 12
+    },
+    {
+      "toy": "Blue Lion",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 55,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 13
+    },
+    {
+      "toy": "Green Lion",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 55,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 14
+    },
+    {
+      "toy": "Red Lion",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 55,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 15
+    },
+    {
+      "toy": "Yellow Lion",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 55,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 16
+    },
+    {
+      "toy": "Hunk",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 55,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 17
+    },
+    {
+      "toy": "Keith",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 55,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 18
+    },
+    {
+      "toy": "Lance",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 55,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 19
+    },
+    {
+      "toy": "Pidge",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 55,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 20
+    },
+    {
+      "toy": "Princess Allura",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 55,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 21
+    },
+    {
+      "toy": "Coffin of Doom",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 45,
+      "sold": 0,
+      "postage": 45,
+      "notes": "",
+      "id": 22
+    }
   ],
-  Gargoyles:[
-    {id:1,toy:"Night Striker",condition:"Boxed",complete:"Y",price:115,sold:0,postage:15,notes:""},
-    {id:2,toy:"Elisa Maza",condition:"MOC",complete:"",price:35,sold:0,postage:0,notes:""},
-    {id:3,toy:"Sticker Book",condition:"MOC",complete:"Y",price:62,sold:44,postage:44,notes:""},
-    {id:4,toy:"Hudson",condition:"Loose",complete:"N",price:25,sold:43,postage:0,notes:""},
-    {id:5,toy:"Lexington (Stone Camo)",condition:"Loose",complete:"N",price:5,sold:10,postage:0,notes:""},
-    {id:6,toy:"Brooklyn",condition:"Loose",complete:"Y",price:42,sold:0,postage:0,notes:""},
-    {id:7,toy:"Bronx",condition:"Loose",complete:"Y",price:42,sold:0,postage:0,notes:""},
-    {id:8,toy:"Goliath (Battle)",condition:"Loose",complete:"Y",price:42,sold:0,postage:0,notes:""},
-    {id:9,toy:"Goliath (Power Wing)",condition:"Loose",complete:"Y",price:42,sold:0,postage:0,notes:""},
-    {id:10,toy:"Goliath (Flamestorm)",condition:"Loose",complete:"Y",price:55,sold:0,postage:0,notes:""},
-    {id:11,toy:"Hudson (Rainstorm)",condition:"Loose",complete:"Y",price:50,sold:0,postage:0,notes:""},
-    {id:12,toy:"Demona",condition:"Loose",complete:"N",price:55,sold:0,postage:0,notes:""}
+  "Gargoyles": [
+    {
+      "id": 1,
+      "toy": "Night Striker",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 115,
+      "sold": 0,
+      "postage": 15,
+      "notes": ""
+    },
+    {
+      "toy": "Elisa Maza",
+      "condition": "MOC",
+      "complete": "Y",
+      "price": 35,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 2
+    },
+    {
+      "id": 3,
+      "toy": "Sticker Book",
+      "condition": "MOC",
+      "complete": "Y",
+      "price": 62,
+      "sold": 44,
+      "postage": 44,
+      "notes": ""
+    },
+    {
+      "id": 4,
+      "toy": "Hudson",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 25,
+      "sold": 43,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 5,
+      "toy": "Lexington (Stone Camo)",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 5,
+      "sold": 10,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 6,
+      "toy": "Brooklyn",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 42,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 7,
+      "toy": "Bronx",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 42,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 8,
+      "toy": "Goliath (Battle)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 42,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 9,
+      "toy": "Goliath (Power Wing)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 42,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 10,
+      "toy": "Goliath (Flamestorm)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 55,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 11,
+      "toy": "Hudson (Rainstorm)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 50,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 12,
+      "toy": "Demona",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 55,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "toy": "Xanatos",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 17,
+      "sold": 0,
+      "postage": 16,
+      "notes": "",
+      "id": 13
+    }
   ],
-  Transformers:[
-    {id:1,toy:"Jazz (SS-86-01)",condition:"Loose",complete:"Y",price:43,sold:0,postage:20,notes:""},{id:2,toy:"Jazz (SS-86-01)",condition:"Loose",complete:"Y",price:43,sold:0,postage:0,notes:""},{id:3,toy:"Ironhide (SS-86-17)",condition:"Loose",complete:"Y",price:43,sold:0,postage:0,notes:""},{id:4,toy:"Steeljaw (Core)",condition:"Loose",complete:"Y",price:43,sold:0,postage:0,notes:""},{id:5,toy:"Bumblebee (SS-86-29)",condition:"Loose",complete:"Y",price:43,sold:0,postage:0,notes:""},{id:6,toy:"Blurr (SS-86-03)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:0,notes:""},{id:7,toy:"Bumblebee (SS-86-29)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:20,notes:""},{id:8,toy:"Blaster & Eject (SS-86-25, Target)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:0,notes:""},{id:9,toy:"Brawn (SS-86-22)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:0,notes:""},{id:10,toy:"Arcee (SS-86-16)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:0,notes:""},{id:11,toy:"Kup (SS-86-02)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:0,notes:""},{id:12,toy:"Jazz (SS-86-01)",condition:"Boxed",complete:"Y",price:38,sold:0,postage:0,notes:""},{id:13,toy:"Brawn (SS-86-22)",condition:"Loose",complete:"Y",price:50,sold:0,postage:0,notes:"Brawn & Ratchet lot"},{id:14,toy:"Galvatron (SS-86-32)",condition:"Boxed",complete:"Y",price:80,sold:0,postage:0,notes:""},{id:15,toy:"Scrapper",condition:"Boxed",complete:"Y",price:48,sold:0,postage:0,notes:""},{id:16,toy:"Junkheap (SS-86-14)",condition:"Boxed",complete:"Y",price:45,sold:0,postage:0,notes:""},{id:17,toy:"Gnaw (SS-86-08)",condition:"Boxed",complete:"Y",price:45,sold:0,postage:0,notes:""},{id:18,toy:"Springer (SS-86-30)",condition:"Boxed",complete:"Y",price:72,sold:0,postage:0,notes:""},{id:19,toy:"Scrapheap (SS-86-24)",condition:"Boxed",complete:"Y",price:40,sold:0,postage:0,notes:""},{id:20,toy:"Perceptor & Ratbat & Ramhorn (Target)",condition:"Boxed",complete:"Y",price:40,sold:0,postage:0,notes:""},{id:21,toy:"Gnaw (SS-86-08)",condition:"Loose",complete:"Y",price:29,sold:0,postage:0,notes:""},{id:22,toy:"Megatron",condition:"Boxed",complete:"Y",price:89,sold:0,postage:0,notes:""},{id:23,toy:"Bonecrusher",condition:"Loose",complete:"Y",price:39,sold:0,postage:0,notes:""},{id:24,toy:"Junkheap (SS-86-14)",condition:"Loose",complete:"Y",price:25,sold:0,postage:0,notes:""},{id:25,toy:"Blurr (SS-86-03)",condition:"Loose",complete:"Y",price:17,sold:0,postage:0,notes:""},{id:26,toy:"Kup (SS-86-02)",condition:"Loose",complete:"Y",price:18,sold:0,postage:0,notes:""},{id:27,toy:"Scavenger",condition:"Boxed",complete:"Y",price:31,sold:40,postage:0,notes:""},{id:28,toy:"Blaster & Eject (SS-86-25, Target)",condition:"Loose",complete:"Y",price:35,sold:0,postage:0,notes:""},{id:29,toy:"Perceptor (SS-86-11)",condition:"Loose",complete:"Y",price:35,sold:0,postage:0,notes:""},{id:30,toy:"Coronation Starscream (SS-86-12)",condition:"Boxed",complete:"Y",price:75,sold:0,postage:0,notes:""},{id:31,toy:"Hook & Long Haul",condition:"Boxed",complete:"Y",price:153,sold:0,postage:0,notes:""},{id:32,toy:"Grimlock (SS-86-06)",condition:"Loose",complete:"Y",price:50,sold:0,postage:0,notes:"OG Grimlock"},{id:33,toy:"Mixmaster",condition:"Boxed",complete:"Y",price:60,sold:60,postage:0,notes:""},{id:34,toy:"Bonecrusher",condition:"Boxed",complete:"Y",price:40,sold:0,postage:0,notes:""},{id:35,toy:"Scavenger",condition:"Boxed",complete:"Y",price:27,sold:0,postage:0,notes:""},{id:36,toy:"Mixmaster",condition:"Boxed",complete:"Y",price:34,sold:0,postage:0,notes:""},{id:37,toy:"Scavenger",condition:"Boxed",complete:"Y",price:39,sold:0,postage:0,notes:""},{id:38,toy:"Scrapper",condition:"Boxed",complete:"Y",price:34,sold:0,postage:0,notes:""},{id:39,toy:"Scourge (SS-86-05)",condition:"Boxed",complete:"Y",price:50,sold:0,postage:0,notes:""},{id:40,toy:"Sweep (SS-86-10)",condition:"Boxed",complete:"Y",price:50,sold:0,postage:0,notes:""},{id:41,toy:"Wreck-Gar (SS-86-09)",condition:"Boxed",complete:"Y",price:50,sold:0,postage:0,notes:""},{id:42,toy:"Optimus Prime (SS-86-31)",condition:"Boxed",complete:"Y",price:180,sold:0,postage:0,notes:""},{id:43,toy:"Mixmaster",condition:"Boxed",complete:"Y",price:60,sold:0,postage:0,notes:""},{id:44,toy:"Ironhide (SS-86-17)",condition:"Boxed",complete:"Y",price:80,sold:0,postage:0,notes:"Ironhide & Prowl"},{id:45,toy:"Cliffjumper (BB Exclusive, SS-86-13bb)",condition:"Loose",complete:"Y",price:40,sold:0,postage:0,notes:""},{id:46,toy:"Ratchet (SS-86-23)",condition:"Loose",complete:"Y",price:21,sold:0,postage:11.15,notes:""}
+  "Transformers": [
+    {
+      "toy": "Jazz (SS-86-01)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 43,
+      "sold": 0,
+      "postage": 20,
+      "notes": "",
+      "id": 1
+    },
+    {
+      "id": 2,
+      "toy": "Jazz (SS-86-01)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 43,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 3,
+      "toy": "Ironhide (SS-86-17)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 43,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 4,
+      "toy": "Steeljaw (Core)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 43,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 5,
+      "toy": "Bumblebee (SS-86-29)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 43,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 6,
+      "toy": "Blurr (SS-86-03)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 38,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 7,
+      "toy": "Bumblebee (SS-86-29)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 38,
+      "sold": 0,
+      "postage": 20,
+      "notes": ""
+    },
+    {
+      "id": 8,
+      "toy": "Blaster & Eject (SS-86-25, Target)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 38,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 9,
+      "toy": "Brawn (SS-86-22)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 38,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 10,
+      "toy": "Arcee (SS-86-16)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 38,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 11,
+      "toy": "Kup (SS-86-02)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 38,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 13,
+      "toy": "Brawn (SS-86-22)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 50,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Brawn & Ratchet lot"
+    },
+    {
+      "id": 14,
+      "toy": "Galvatron (SS-86-32)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 80,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 15,
+      "toy": "Scrapper",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 48,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 16,
+      "toy": "Junkheap (SS-86-14)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 45,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 17,
+      "toy": "Gnaw (SS-86-08)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 45,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 18,
+      "toy": "Springer (SS-86-30)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 72,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "toy": "Scrapheap (SS-86-24)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 40,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 19
+    },
+    {
+      "id": 20,
+      "toy": "Perceptor & Ratbat & Ramhorn (Target)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 40,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 21,
+      "toy": "Gnaw (SS-86-08)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 29,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 22,
+      "toy": "Megatron",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 89,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 23,
+      "toy": "Bonecrusher",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 39,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 24,
+      "toy": "Junkheap (SS-86-14)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 25,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 25,
+      "toy": "Blurr (SS-86-03)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 17,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 26,
+      "toy": "Kup (SS-86-02)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 18,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 27,
+      "toy": "Scavenger",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 31,
+      "sold": 40,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 28,
+      "toy": "Blaster & Eject (SS-86-25, Target)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 35,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 29,
+      "toy": "Perceptor (SS-86-11)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 35,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 30,
+      "toy": "Coronation Starscream (SS-86-12)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 75,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 31,
+      "toy": "Hook & Long Haul",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 153,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "toy": "Grimlock (SS-86-06)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 50,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 32
+    },
+    {
+      "id": 33,
+      "toy": "Mixmaster",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 60,
+      "sold": 60,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 34,
+      "toy": "Bonecrusher",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 40,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "toy": "Scavenger",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 27,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 35
+    },
+    {
+      "toy": "Mixmaster",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 34,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 36
+    },
+    {
+      "id": 37,
+      "toy": "Scavenger",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 39,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "toy": "Scrapper",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 34,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 38
+    },
+    {
+      "id": 39,
+      "toy": "Scourge (SS-86-05)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 50,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 40,
+      "toy": "Sweep (SS-86-10)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 50,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 41,
+      "toy": "Wreck-Gar (SS-86-09)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 50,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 42,
+      "toy": "Optimus Prime (SS-86-31)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 180,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 43,
+      "toy": "Mixmaster",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 60,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 44,
+      "toy": "Ironhide (SS-86-17)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 80,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Ironhide & Prowl"
+    },
+    {
+      "id": 45,
+      "toy": "Cliffjumper (BB Exclusive, SS-86-13bb)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 40,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "toy": "Ratchet (SS-86-23)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 21,
+      "sold": 0,
+      "postage": 11.15,
+      "notes": "",
+      "id": 46
+    },
+    {
+      "toy": "Scrapheap (SS-86-24)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 30,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 47
+    },
+    {
+      "toy": "Coronation Starscream (SS-86-12)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 43,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 48
+    },
+    {
+      "toy": "Hot Rod (SS-86-04)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 43,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 49
+    },
+    {
+      "toy": "Dying Prowl (SS-86-20bb)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 40,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 50
+    },
+    {
+      "toy": "Dying Ironhide (SS-86-24bb)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 40,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 51
+    },
+    {
+      "toy": "Spike Witwicky (Core)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 25,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 52
+    },
+    {
+      "toy": "Spike Witwicky (Core)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 10,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 53
+    },
+    {
+      "toy": "Slug (SS-86-07)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 90,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 54
+    },
+    {
+      "toy": "Dying Brawn (SS-86-27)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 30,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 55
+    },
+    {
+      "toy": "Dying Ratchet (SS-86-28)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 30,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 56
+    },
+    {
+      "toy": "Windcharger",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 32,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 57
+    },
+    {
+      "toy": "Windcharger",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 32,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 58
+    },
+    {
+      "toy": "Hot Rod (SS-86-04)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 60,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 59
+    },
+    {
+      "toy": "Scourge (SS-86-05)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 40,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 60
+    },
+    {
+      "toy": "Ultra Magnus (SS-86-21)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 140,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 61
+    },
+    {
+      "toy": "Dying Ironhide (SS-86-24bb)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 35,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 62
+    },
+    {
+      "toy": "Ratchet (Core)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 0,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 63
+    }
   ],
-  "Toxic Crusaders":[
-    {id:1,toy:"Dr. Killemoff",condition:"Loose",complete:"N",price:80,sold:0,postage:0,notes:"Broken gun"},
-    {id:2,toy:"Psycho",condition:"Loose",complete:"Y",price:70,sold:0,postage:0,notes:""},
-    {id:3,toy:"Radiation Ranger",condition:"Loose",complete:"N",price:50,sold:0,postage:0,notes:"Missing hoses"},
-    {id:4,toy:"Crusader Skater",condition:"Loose",complete:"N",price:30,sold:0,postage:0,notes:"Missing flag"},
-    {id:5,toy:"Puzzle",condition:"MOC",complete:"Y",price:35,sold:0,postage:0,notes:"Not on official checklist"}
+  "Toxic Crusaders": [
+    {
+      "id": 1,
+      "toy": "Dr. Killemoff",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 80,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Broken gun"
+    },
+    {
+      "id": 2,
+      "toy": "Psycho",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 70,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 3,
+      "toy": "Radiation Ranger",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 50,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Missing hoses"
+    },
+    {
+      "id": 4,
+      "toy": "Crusader Skater",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 30,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Missing flag"
+    },
+    {
+      "id": 5,
+      "toy": "Puzzle",
+      "condition": "MOC",
+      "complete": "Y",
+      "price": 35,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Not on official checklist"
+    }
   ],
-  "Captain Planet":[
-    {id:1,toy:"Captain Planet (Flying)",condition:"Loose",complete:"N",price:15,sold:0,postage:0,notes:"Missing ring"},
-    {id:2,toy:"Captain Planet (Tornado)",condition:"Loose",complete:"N",price:60,sold:0,postage:0,notes:"Not working"},
-    {id:3,toy:"Wheeler (Sparking Action)",condition:"Loose",complete:"N",price:10,sold:0,postage:0,notes:"Missing ring"},
-    {id:4,toy:"Wheeler (Grappling Hook)",condition:"Loose",complete:"N",price:10,sold:0,postage:0,notes:"Missing accessories"},
-    {id:5,toy:"Ma-Ti (Pink Jacket) / Kwame (Green Shorts)",condition:"Loose",complete:"N",price:10,sold:0,postage:0,notes:"Missing accessories"},
-    {id:6,toy:"Argos Bleak",condition:"Loose",complete:"N",price:70,sold:0,postage:0,notes:"Missing missile"},
-    {id:7,toy:"Hoggish Greedly",condition:"Loose",complete:"Y",price:30,sold:0,postage:0,notes:""},
-    {id:8,toy:"Duke Nukem (Euro Version)",condition:"Loose",complete:"Y",price:20,sold:0,postage:0,notes:""},
-    {id:9,toy:"Toxic Cannon",condition:"Loose",complete:"N",price:50,sold:0,postage:0,notes:"Missing cap"},
-    {id:10,toy:"Planeteer Power Ring (Gold)",condition:"Loose",complete:"Y",price:15,sold:0,postage:0,notes:""}
+  "Captain Planet": [
+    {
+      "toy": "Captain Planet (Flying)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 35,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Missing ring",
+      "id": 1
+    },
+    {
+      "id": 2,
+      "toy": "Captain Planet (Tornado)",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 60,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Not working"
+    },
+    {
+      "id": 3,
+      "toy": "Wheeler (Sparking Action)",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 10,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Missing ring"
+    },
+    {
+      "id": 4,
+      "toy": "Wheeler (Grappling Hook)",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 10,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Missing accessories"
+    },
+    {
+      "id": 5,
+      "toy": "Ma-Ti (Pink Jacket) / Kwame (Green Shorts)",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 10,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Missing accessories"
+    },
+    {
+      "id": 6,
+      "toy": "Argos Bleak",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 70,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Missing missile"
+    },
+    {
+      "id": 7,
+      "toy": "Hoggish Greedly",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 30,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 9,
+      "toy": "Toxic Cannon",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 50,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Missing cap"
+    },
+    {
+      "toy": "Duke Nukem",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 25,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 11
+    },
+    {
+      "toy": "Captain Planet (Toxic Grime)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 20,
+      "sold": 0,
+      "postage": 45,
+      "notes": "",
+      "id": 12
+    },
+    {
+      "toy": "Wheeler (Eco Commands)",
+      "condition": "Loose",
+      "complete": "N",
+      "price": 20,
+      "sold": 0,
+      "postage": 0,
+      "notes": "Missing green belt",
+      "id": 13
+    }
   ],
-  "M.A.S.K.":[],
-  Reboot:[
-    {id:1,toy:"Bob (Green Suit)",condition:"MOC",complete:"Y",price:22,sold:0,postage:23.5,notes:""},
-    {id:2,toy:"Dot",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""},
-    {id:3,toy:"Enzo",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""},
-    {id:4,toy:"Hexadecimal",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""},
-    {id:5,toy:"Megabyte",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""},
-    {id:6,toy:"Hack",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""},
-    {id:7,toy:"Slash",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""},
-    {id:8,toy:"Enzo (Flying)",condition:"MOC",complete:"Y",price:22,sold:0,postage:0,notes:""}
-  ]
+  "Reboot": [
+    {
+      "id": 1,
+      "toy": "Bob (Green Suit)",
+      "condition": "MOC",
+      "complete": "Y",
+      "price": 22,
+      "sold": 0,
+      "postage": 23.5,
+      "notes": ""
+    },
+    {
+      "id": 2,
+      "toy": "Dot",
+      "condition": "MOC",
+      "complete": "Y",
+      "price": 22,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 3,
+      "toy": "Enzo",
+      "condition": "MOC",
+      "complete": "Y",
+      "price": 22,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 4,
+      "toy": "Hexadecimal",
+      "condition": "MOC",
+      "complete": "Y",
+      "price": 22,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 5,
+      "toy": "Megabyte",
+      "condition": "MOC",
+      "complete": "Y",
+      "price": 22,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 6,
+      "toy": "Hack",
+      "condition": "MOC",
+      "complete": "Y",
+      "price": 22,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 7,
+      "toy": "Slash",
+      "condition": "MOC",
+      "complete": "Y",
+      "price": 22,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    },
+    {
+      "id": 8,
+      "toy": "Enzo (Flying)",
+      "condition": "MOC",
+      "complete": "Y",
+      "price": 22,
+      "sold": 0,
+      "postage": 0,
+      "notes": ""
+    }
+  ],
+  "M.A.S.K.": []
 };
 
 let state={activeLine:null,collection:null,modal:null,editItem:null,confirmDeleteId:null,filterComplete:'all',filterCondition:'all',filterSearch:''};
