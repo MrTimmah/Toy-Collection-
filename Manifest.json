@@ -1,7 +1,7 @@
 {
   "name": "Toy Collection Tracker",
   "short_name": "Toy Tracker",
-  "start_url": "/toy-collection/",
+  "start_url": "/Toy-Collection/",
   "display": "standalone",
   "background_color": "#FAF9F7",
   "theme_color": "#1D9E75",
