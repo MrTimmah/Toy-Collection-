@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Toy Tracker">
 <link rel="manifest" href="/Toy-Collection-/manifest.json">
-<title>Toy Collection Tracker v2.6</title>
+<title>Toy Collection Tracker v2.8</title>
 <style>
 :root{
   --bg:#FAF9F7;--bg-card:#FFFFFF;--bg-secondary:#F1EFEA;
@@ -107,7 +107,7 @@ tr:hover td{background:#f9f7f4}
 <body>
 <div class="app" id="app"></div>
 <script>
-const APP_VERSION = '2.6';
+const APP_VERSION = '2.8';
 
 // ── Cache busting / update detection ─────────────────────────────────────
 window.checkForUpdate = async function() {
@@ -139,6 +139,36 @@ function isStandalone(){ return window.matchMedia('(display-mode: standalone)').
 window.triggerInstall = async function(){ if(!deferredPrompt)return; deferredPrompt.prompt(); const{outcome}=await deferredPrompt.userChoice; if(outcome==='accepted'){deferredPrompt=null;render();} };
 window.dismissInstall = function(){ localStorage.setItem('pwa-dismissed','1'); render(); };
 window.exportData = function(){ const a=document.createElement('a'); a.href='data:application/json,'+encodeURIComponent(localStorage.getItem(STORAGE_KEY)); a.download='toy-collection-backup.json'; a.click(); };
+window.importData = function(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = function(e){
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      try {
+        const imported = JSON.parse(ev.target.result);
+        if (typeof imported !== 'object' || Array.isArray(imported)) throw new Error('Invalid format');
+        // Merge: keep imported data but add any new lines from DEFAULT_DATA not in import
+        const merged = {...imported};
+        for (const line of Object.keys(DEFAULT_DATA)) {
+          if (!(line in merged)) merged[line] = JSON.parse(JSON.stringify(DEFAULT_DATA[line]));
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+        state.collection = merged;
+        state.activeLine = null;
+        render();
+        alert('Import successful! ' + Object.values(merged).reduce((s,a)=>s+a.length,0) + ' items loaded across ' + Object.keys(merged).length + ' toy lines.');
+      } catch(err) {
+        alert('Import failed — make sure you selected a valid toy collection backup file.');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+};
 
 function renderInstallBanner(){
   if(isStandalone())return'';
@@ -163,6 +193,13 @@ const RELEASED={
   "Captain Planet":{"Captain Planet Figures":["Captain Planet (All-American)","Captain Planet (Arctic)","Captain Planet (Color Change)","Captain Planet (Exploding Meteor)","Captain Planet (Flying)","Captain Planet (Light and Thunder)","Captain Planet (Pollution Armor)","Captain Planet (Power Commands)","Captain Planet (Tornado)","Captain Planet (Toxic Grime)","Captain Planet (Anti-Radiation Armor)","Captain Planet (Firestorm)","Captain Planet (Thunder & Lightning)"],"Eco-Heroes":["Commander Clash","Gi Planeteer","Kwame","Linka","Linka (Eco Commands)","Linka (Parachute)","Ma-Ti","Ma-Ti (Rescue Pack)","Ma-Ti (Rescue Vehicle)","Ma-Ti (Pink Jacket) / Kwame (Green Shorts)","Ma-Ti (Red Jacket) / Kwame (Tan Shorts)","Wheeler","Wheeler (Eco Commands)","Wheeler (Grappling Hook)","Wheeler (Tread Pack)","Wheeler (Sparking Action)"],"Eco-Villains":["Argos Bleak","Captain Pollution","Dr. Blight","Duke Nukem","Duke Nukem (Euro Version)","Duke Nukem (Glows in the Dark) (Euro Version)","Hoggish Greedly","Sly Sludge","Verminous Skumm"],"Vehicles & Accessories":["Duke's Exploding Reactor","Eco Jailer","Eco-Cycle","Eco-Sub","Exploding Garbage Cans","Garbage Cannon Truck","Geo Cruiser","Planeteer Copter","Skumm-O-Copter","Toxic Cannon","Toxic Sludge Dump","Toxic Sludge Dump (Toxic Trap)"],"Role Play":["Planeteer Power Ring (Gold)","Planeteer Power Ring (Silver)"]},
   Reboot:{"Series 1":["Bob (Green Suit)","Bob (White Suit, Special Edition)","Dot","Enzo","Hack","Hexadecimal","Megabyte","Slash"],"Series 2":["Captain Capacitor","Commander Dot","Glitch Bob","Matrix","Megabyte (S2)","Ray Tracer (Blue/White)","Ray Tracer (Solid Blue)","Web Bob","Web Matrix","Web Rider"],"PVC":["Bob (PVC)","Dot (PVC)","Frisket","Hack (PVC)","Megabyte (PVC)","Slash (PVC)"],"10\" Scale":["Andrala (10-inch)","Glitch Bob (10-inch)","Matrix (10-inch)","Megabyte (10-inch)"],"Vehicles":["Bob's V262 Turbo Drophead Car","Exo-Skeleton"],"Miniature Playsets":["Hack and Slash's Vehicle Bay","Hexadecimal's Lair","Megabyte's Throne Room"],"Box Sets":["Original Collector Edition #1","Original Collector Edition #2"]},
   "M.A.S.K.":{"Series 1 Vehicles":["Condor","Firecracker","Gator","Jackhammer","Piranha","Rhino","Switchblade","Thunderhawk"],"Series 2 Vehicles":["Firefly","Hurricane","Outlaw","Raven","Slingshot","Stinger","Vampire","Volcano"],"Series 3 Vehicles":["Billboard Blast","Bulldog","Bullet","Buzzard","Goliath","Iguana","Manta","Meteor","Pit Stop Catapult","Razorback","The Collector","Wildcat"],"Series 4 (Split Seconds)":["Afterburner","Barracuda","Detonator","Dynamo","Fireforce","Skybolt","Stiletto","Vandal","Wolfbeast"],"Adventure Packs":["Coast Patrol","Jungle Challenge","Rescue Mission","Venom's Revenge","Arctic Assault (Europe)","Glider Strike (Europe)","Racing Arena (Europe)","Sea Attack (Europe)"],"Figure Packs":["Alex Sector and Buddie Hawks","Bruce Sato and Brad Turner","Matt Trakker and Hondo MacLean","Matt Trakker and Miles Mayhem","Sly Rax and Cliff Dagger","T-Bob and Scott Trakker","Ace Riker and Hondo MacLean (Europe)","Floyd Malloy and Vanessa Warfield (Europe)","Julio Lopez and Calhoun Burns (Europe)","Matt Trakker and Jaques LaFleur (Europe)","Miles Mayhem and Nash Gorey (Europe)"],"Playsets":["Boulder Hill","Laser Command"]},
+  "Secret Wars":{
+    "Series 1 (1984)":["Captain America","Doctor Doom","Doctor Octopus","Iron Man","Kang the Conqueror","Magneto","Spider-Man","Wolverine"],
+    "Series 2 (1985)":["Baron Zemo","Daredevil","Falcon","Hobgoblin","Spider-Man (Black Costume)"],
+    "Foreign Exclusives":["Constrictor","Electro","Iceman"],
+    "Vehicles":["Doom Copter","Doom Cycle","Doom Roller","Doom Star","Star Dart","Turbo Cycle","Turbocopter"],
+    "Playsets":["Freedom Fighter"]
+  },
   "Swamp Thing":{"Swamp Thing Figures":["Bio-Glow Swamp Thing","Camouflage Swamp Thing","Capture Swamp Thing","Climbing Swamp Thing","Snap-Up Swamp Thing","Snare Arm Swamp Thing"],"Allies":["Bayou Jack","Tomahawk"],"Evil Un-Men":["Anton Arcane","Dr. Deemo","Skin-Man","Weed Killer"],"Vehicles":["Arcane's Bayou Blaster","Bog Rover","Marsh Buggy"],"Playsets":["Swamp Trap","Transducer"]}
 };
 
@@ -635,14 +672,14 @@ const DEFAULT_DATA={
       "notes": ""
     },
     {
-      "id": 10,
       "toy": "Arcee (SS-86-16)",
       "condition": "Boxed",
       "complete": "Y",
       "price": 38,
-      "sold": 0,
+      "sold": 47,
       "postage": 0,
-      "notes": ""
+      "notes": "",
+      "id": 10
     },
     {
       "id": 11,
@@ -675,14 +712,14 @@ const DEFAULT_DATA={
       "notes": ""
     },
     {
-      "id": 15,
       "toy": "Scrapper",
       "condition": "Boxed",
       "complete": "Y",
       "price": 48,
-      "sold": 0,
+      "sold": 48,
       "postage": 0,
-      "notes": ""
+      "notes": "",
+      "id": 15
     },
     {
       "id": 16,
@@ -719,7 +756,7 @@ const DEFAULT_DATA={
       "condition": "Boxed",
       "complete": "Y",
       "price": 40,
-      "sold": 0,
+      "sold": 47,
       "postage": 0,
       "notes": "",
       "id": 19
@@ -745,14 +782,14 @@ const DEFAULT_DATA={
       "notes": ""
     },
     {
-      "id": 22,
       "toy": "Megatron",
       "condition": "Boxed",
       "complete": "Y",
-      "price": 89,
+      "price": 72,
       "sold": 0,
       "postage": 0,
-      "notes": ""
+      "notes": "",
+      "id": 22
     },
     {
       "id": 23,
@@ -1029,7 +1066,7 @@ const DEFAULT_DATA={
       "condition": "Boxed",
       "complete": "Y",
       "price": 25,
-      "sold": 0,
+      "sold": 47,
       "postage": 0,
       "notes": "",
       "id": 52
@@ -1288,7 +1325,7 @@ const DEFAULT_DATA={
       "toy": "Blitzwing",
       "condition": "Loose",
       "complete": "Y",
-      "price": 84,
+      "price": 69,
       "sold": 0,
       "postage": 0,
       "notes": "",
@@ -1303,6 +1340,46 @@ const DEFAULT_DATA={
       "postage": 0,
       "notes": "",
       "id": 79
+    },
+    {
+      "toy": "Insecticons 3-Pack - Bombshell, Shrapnel & Kickback (Target)",
+      "condition": "Loose",
+      "complete": "Y",
+      "price": 0,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 80
+    },
+    {
+      "toy": "MTMTE Starscream (Target)",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 60,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 81
+    },
+    {
+      "toy": "Megatron",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 72,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 82
+    },
+    {
+      "toy": "Blitzwing",
+      "condition": "Boxed",
+      "complete": "Y",
+      "price": 69,
+      "sold": 0,
+      "postage": 0,
+      "notes": "",
+      "id": 83
     }
   ],
   "Toxic Crusaders": [
@@ -1713,7 +1790,8 @@ const DEFAULT_DATA={
       "id": 12
     }
   ],
-  "Swamp Thing": []
+  "Swamp Thing": [],
+  "Secret Wars": []
 };
 
 let state={activeLine:null,collection:null,modal:null,editItem:null,confirmDeleteId:null,filterComplete:'all',filterCondition:'all',filterSearch:'',updateAvailable:null};
@@ -1793,7 +1871,7 @@ function render(){
   let content='';
   if(state.activeLine===null)content=renderOverview();
   else content=renderLine(state.activeLine);
-  app.innerHTML=`<div class="header"><div><h1>&#127481; Toy Collection Tracker</h1><p>${lines.length} toy lines &middot; ${Object.values(state.collection).reduce((s,a)=>s+a.length,0)} items &middot; v${APP_VERSION}</p></div><div class="header-btns"><button class="btn btn-sm btn-update" onclick="checkForUpdate()" title="Check for updates">&#x1F504; Check for update</button><button class="btn btn-sm" onclick="exportData()">&#8595; Export</button></div></div>${tabs}${content}${renderModal()}`;
+  app.innerHTML=`<div class="header"><div><h1>&#127481; Toy Collection Tracker</h1><p>${lines.length} toy lines &middot; ${Object.values(state.collection).reduce((s,a)=>s+a.length,0)} items &middot; v${APP_VERSION}</p></div><div class="header-btns"><button class="btn btn-sm btn-update" onclick="checkForUpdate()" title="Check for updates">&#x1F504; Check for update</button><button class="btn btn-sm" onclick="importData()">&#8593; Import</button><button class="btn btn-sm" onclick="exportData()">&#8595; Export</button></div></div>${tabs}${content}${renderModal()}`;
 }
 
 window.goToLine=line=>{state.activeLine=line;state.filterComplete='all';state.filterCondition='all';state.filterSearch='';state.confirmDeleteId=null;render();};
